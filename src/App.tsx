@@ -2,15 +2,16 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import styled, { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
 
-import Layout from "./components/Layout";
+import Home from "./components/home";
 import User from "./components/user";
+import Vote from "./components/vote";
 
-import Home from "./routes/home";
 import Login from "./routes/login";
 import Join from "./routes/join";
 import Createvote from "./routes/createvote";
 import Userinfo from "./routes/userinfo";
 import Managevote from "./routes/managevote";
+import ProtectedRoute from "./components/protectedRoute";
 
 const GlobalStyles = createGlobalStyle`
   ${reset};
@@ -61,13 +62,7 @@ const Wrapped = styled.div`
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
-    children: [
-      {
-        path: "",
-        element: <Home />,
-      },
-    ],
+    element: <Home />,
   },
   {
     path: "/login",
@@ -79,7 +74,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/user",
-    element: <User />,
+    element: (
+      <ProtectedRoute>
+        <User />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "createvote",
@@ -94,6 +93,10 @@ const router = createBrowserRouter([
         element: <Managevote />,
       },
     ],
+  },
+  {
+    path: "/vote/:id",
+    element: <Vote />,
   },
 ]);
 

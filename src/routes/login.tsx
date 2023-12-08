@@ -1,29 +1,72 @@
-import styled from "styled-components";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-const LoginForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebase";
 
-  span {
-    display: flex;
-    gap: 10px;
-  }
-`;
+import { Form, Switcher } from "../components/auth-components";
 
 function Login() {
+  const navigate = useNavigate();
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const id = e.target.id;
+    const value = e.target.value;
+
+    if (id === "email") {
+      setLoginData({ ...loginData, email: value });
+    }
+    if (id === "password") {
+      setLoginData({ ...loginData, password: value });
+    }
+  };
+
+  const onLogin = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    signInWithEmailAndPassword(auth, loginData.email, loginData.password)
+      .then((res) => {
+        console.log("user:", res.user);
+        console.log("providerId:", res.providerId);
+        console.log("operationType:", res.operationType);
+      })
+      .catch((err) => {
+        const errCode = err.code;
+        const errMsg = err.message;
+        console.log(`code: ${errCode} / message: ${errMsg}`);
+      })
+      .finally(() => {
+        navigate("/user");
+      });
+  };
+
   return (
     <>
       <h1>Login!</h1>
-      <LoginForm>
-        <input type="email" />
-        <input type="password" />
+      <Form onSubmit={onLogin}>
+        <input
+          type="email"
+          id="email"
+          value={loginData.email}
+          onChange={onChange}
+        />
+        <input
+          type="password"
+          id="password"
+          value={loginData.password}
+          onChange={onChange}
+        />
         <span>
           <button type="submit">Login</button>
-          <a href="/join">Join</a>
         </span>
-      </LoginForm>
+      </Form>
+      <Switcher>
+        투표를 생성하려면 계정을 생성하세요. <Link to="/join">Join</Link>
+      </Switcher>
     </>
   );
 }

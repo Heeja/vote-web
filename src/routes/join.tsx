@@ -1,57 +1,84 @@
 import { useState } from "react";
-import styled from "styled-components";
 
-const JoinForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
+import { auth } from "./firebase";
 
-  span {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-  span:last-child {
-    display: flex;
-    justify-content: center;
+import { Form, Error, Switcher } from "../components/auth-components";
+import { Link, Navigate } from "react-router-dom";
 
-    button {
-      padding: 0.4rem 1.2rem;
-      background: lightyellow;
-    }
-  }
-`;
+// css - styled comnenets
 
 export default function Join() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState("");
   const [userInfo, setUserInfo] = useState({
     email: "",
     pw: "",
-    pwcheck: "",
     name: "",
   });
+
+  const [emailAlert, setEmailAlert] = useState(false);
+  const [pwAlert, setPwAlert] = useState(false);
+  const [nameAlert, setNameAlert] = useState(false);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const targetId = e.target.id;
     const targetValue = e.target.value;
 
-    if (targetId === "id") {
+    if (targetId === "email") {
       setUserInfo({ ...userInfo, email: targetValue });
     }
     if (targetId === "pw") {
       setUserInfo({ ...userInfo, pw: targetValue });
-    }
-    if (targetId === "pwcheck") {
-      setUserInfo({ ...userInfo, pwcheck: targetValue });
     }
     if (targetId === "name") {
       setUserInfo({ ...userInfo, name: targetValue });
     }
   };
 
+  const userJoin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!userInfo.email) {
+      setEmailAlert(true);
+      return;
+    } else setEmailAlert(false);
+
+    if (!userInfo.pw) {
+      setPwAlert(true);
+      return;
+    } else setPwAlert(false);
+
+    if (!userInfo.name) {
+      setNameAlert(true);
+      return;
+    } else setNameAlert(false);
+
+    try {
+      setIsLoading(true);
+      // firebase send data
+      const creditianlUser = await createUserWithEmailAndPassword(
+        auth,
+        userInfo.email,
+        userInfo.pw
+      );
+      console.log(creditianlUser.user);
+      await updateProfile(creditianlUser.user, { displayName: userInfo.name });
+      <Navigate to={"/user"} />;
+    } catch (err) {
+      if (err instanceof FirebaseError) {
+        setIsError(err.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <h1>Join</h1>
-      <JoinForm>
+      <Form onSubmit={userJoin}>
         <span>
           <label htmlFor="email">Email(ID)</label>
           <input
@@ -62,6 +89,13 @@ export default function Join() {
             onChange={onChange}
           />
         </span>
+        {emailAlert ? (
+          <span>
+            <p>Email을 입력해주세요.</p>
+          </span>
+        ) : (
+          ""
+        )}
         <span>
           <label htmlFor="pw">Password</label>
           <input
@@ -72,16 +106,13 @@ export default function Join() {
             onChange={onChange}
           />
         </span>
-        <span>
-          <label htmlFor="pwcheck">Password check</label>
-          <input
-            type="password"
-            id="pwcheck"
-            placeholder="password checked"
-            value={userInfo.pwcheck}
-            onChange={onChange}
-          />
-        </span>
+        {pwAlert ? (
+          <span>
+            <p>입력하신 비밀번호를 다시 확인해주세요.</p>
+          </span>
+        ) : (
+          ""
+        )}
         <span>
           <label htmlFor="name">User Name</label>
           <input
@@ -92,10 +123,27 @@ export default function Join() {
             onChange={onChange}
           />
         </span>
+        {nameAlert ? (
+          <span>
+            <p>이름을 입력해주세요.</p>
+          </span>
+        ) : (
+          ""
+        )}
         <span>
-          <button type="submit">Join</button>
+          {isLoading ? (
+            <span>
+              <button>Loading...</button>
+            </span>
+          ) : (
+            <button type="submit">Join</button>
+          )}
         </span>
-      </JoinForm>
+      </Form>
+      {isError ? <Error>${isError}</Error> : ""}
+      <Switcher>
+        계정이 있다면 로그인하세요. <Link to="/login">Log in</Link>
+      </Switcher>
     </>
   );
 }

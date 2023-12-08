@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 
 import { Form, Switcher } from "../components/auth-components";
+import AuthGoogle from "../components/auth-google";
 
 function Login() {
   const navigate = useNavigate();
@@ -67,6 +68,7 @@ function Login() {
       <Switcher>
         투표를 생성하려면 계정을 생성하세요. <Link to="/join">Join</Link>
       </Switcher>
+      <AuthGoogle />
     </>
   );
 }

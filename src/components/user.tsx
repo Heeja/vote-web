@@ -1,6 +1,6 @@
 import { signOut } from "firebase/auth";
 import { useState } from "react";
-import { Link, Navigate, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { auth } from "../routes/firebase";
 
@@ -13,10 +13,11 @@ const UserPageBox = styled.div`
 
 export default function User() {
   const [isLoading] = useState(false);
+  const navigate = useNavigate();
 
   const Logout = () => {
     signOut(auth).then((res) => console.log(res));
-    <Navigate to={"/"} />;
+    navigate("/");
   };
 
   return (

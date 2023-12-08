@@ -37,7 +37,8 @@ const GlobalStyles = createGlobalStyle`
 
   a {
     color: snow;
-    $hover {
+
+    :hover {
       cursor: pointer;
     }
   }
@@ -45,7 +46,7 @@ const GlobalStyles = createGlobalStyle`
   button {
     border: none;
     border-radius: 1rem;
-    $hover {
+    :hover {
       cursor: pointer;
     }
   }

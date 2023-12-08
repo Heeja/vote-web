@@ -1,17 +1,19 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { auth } from "./firebase";
 
 import { Form, Error, Switcher } from "../components/auth-components";
-import { Link, Navigate } from "react-router-dom";
+import AuthGoogle from "../components/auth-google";
 
 // css - styled comnenets
 
 export default function Join() {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState("");
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     email: "",
     pw: "",
@@ -65,7 +67,8 @@ export default function Join() {
       );
       console.log(creditianlUser.user);
       await updateProfile(creditianlUser.user, { displayName: userInfo.name });
-      <Navigate to={"/user"} />;
+
+      navigate("/login");
     } catch (err) {
       if (err instanceof FirebaseError) {
         setIsError(err.message);
@@ -144,6 +147,7 @@ export default function Join() {
       <Switcher>
         계정이 있다면 로그인하세요. <Link to="/login">Log in</Link>
       </Switcher>
+      <AuthGoogle />
     </>
   );
 }

@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  browserSessionPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "./firebase";
 
 import { Form, Switcher } from "../components/auth-components";
 import AuthGoogle from "../components/auth-google";
 
 function Login() {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState({
     email: "",
@@ -28,22 +33,32 @@ function Login() {
 
   const onLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    signInWithEmailAndPassword(auth, loginData.email, loginData.password)
-      .then((res) => {
-        console.log("user:", res.user);
-        console.log("providerId:", res.providerId);
-        console.log("operationType:", res.operationType);
-      })
-      .catch((err) => {
-        const errCode = err.code;
-        const errMsg = err.message;
-        console.log(`code: ${errCode} / message: ${errMsg}`);
-      })
-      .finally(() => {
-        navigate("/user");
-      });
+    setPersistence(auth, browserSessionPersistence).then(() => {
+      signInWithEmailAndPassword(auth, loginData.email, loginData.password)
+        .then((res) => {
+          console.log("signIn Res:", res);
+        })
+        .catch((err) => {
+          const errCode = err.code;
+          const errMsg = err.message;
+          console.log(`code: ${errCode} / message: ${errMsg}`);
+        })
+        .finally(() => {
+          setIsLoading(false);
+          navigate("/user");
+        });
+    });
   };
+
+  useEffect(() => {
+    const user = auth.currentUser;
+
+    if (user != null) {
+      navigate("/user");
+    }
+  }, []);
 
   return (
     <>
@@ -62,7 +77,11 @@ function Login() {
           onChange={onChange}
         />
         <span>
-          <button type="submit">Login</button>
+          {isLoading ? (
+            <button type="button">Loading...</button>
+          ) : (
+            <button type="submit">Login</button>
+          )}
         </span>
       </Form>
       <Switcher>

@@ -60,13 +60,13 @@ export default function Join() {
     try {
       setIsLoading(true);
       // firebase send data
-      const creditianlUser = await createUserWithEmailAndPassword(
+      const credentialsUser = await createUserWithEmailAndPassword(
         auth,
         userInfo.email,
         userInfo.pw
       );
-      console.log(creditianlUser.user);
-      await updateProfile(creditianlUser.user, { displayName: userInfo.name });
+      console.log(credentialsUser.user);
+      await updateProfile(credentialsUser.user, { displayName: userInfo.name });
 
       navigate("/login");
     } catch (err) {

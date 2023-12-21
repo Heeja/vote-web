@@ -13,8 +13,8 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     const unsubcribe = auth.onAuthStateChanged((currentUser) => {
+      setIsLoading(false);
       if (currentUser) {
-        setIsLoading(false);
         setUser(currentUser);
       } else {
         setUser(null);

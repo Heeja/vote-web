@@ -83,7 +83,20 @@
   - [x] Google Function (Fass)
   - [o] Firebase (Bass)
   - [x] Supabase
-- 스키마 - user - email - pw - name - vote id - id - vote title - vote - vote checked (vote id 참조키) - vote id `from vote id` - not null - choiced vote - not null - choiced deviece info - unique value, not null -
-</aside>
+- 스키마(?)
+  - user (firebase user로 사용)
+    - email
+    - pw
+    - name
+  - vote id
+    - id
+    - vote title
+    - vote
+  - vote checked
+    - userId → `user에서 값 가져와 저장`
+    - (FK)vote id → `from vote id`
+    - not null → `choiced vote, not null`
+    - choiced deviece info → `unique value, not null`
+-   </aside>
 
----
+  ***

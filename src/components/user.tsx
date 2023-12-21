@@ -4,6 +4,14 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { auth } from "../routes/firebase";
 
+const Wrapper = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+`;
+
 const UserPageBox = styled.div`
   display: flex;
   justify-content: center;
@@ -21,7 +29,7 @@ export default function User() {
   };
 
   return (
-    <>
+    <Wrapper>
       <h1>User Page.</h1>
       <div>
         <button type="button" onClick={Logout}>
@@ -42,6 +50,6 @@ export default function User() {
       ) : (
         <Outlet />
       )}
-    </>
+    </Wrapper>
   );
 }

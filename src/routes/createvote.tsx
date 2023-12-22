@@ -18,9 +18,7 @@ const InputBox = styled.span`
   align-items: center;
 `;
 
-const Input = styled.input`
-  appearance: none;
-`;
+const Input = styled.input``;
 
 const Label = styled.label``;
 
@@ -30,9 +28,25 @@ export default function Createvote() {
   const [anonyOn, setAnonyOn] = useState(false);
 
   const [title, setTitle] = useState("");
-  const [items, setItems] = useState({});
+  const [items, setItems] = useState<string[]>([]);
   const [location, setLocation] = useState("");
   const [limit, setLimit] = useState(0);
+
+  const onSubmit = () => {
+    console.log(title, items, doubleOn, location, anonyOn, limit);
+    return;
+  };
+
+  const addItems = () => {
+    setItems((prev) => [...prev, ""]);
+  };
+
+  const onChangeItems = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const id = e.target.id;
+    items[parseInt(id)] = value;
+    setItems([...items]);
+  };
 
   return (
     <Wrapper>
@@ -47,10 +61,21 @@ export default function Createvote() {
           onChange={(e) => setTitle(e.target.value)}
         />
       </InputBox>
-      <InputBox>
-        <Label htmlFor="item">항목</Label>
-        <Input id="item" type="textarea" />
-      </InputBox>
+      {items.map((item, idx) => {
+        return (
+          <InputBox>
+            <Label htmlFor={idx.toString()}>항목</Label>
+            <Input
+              id={idx.toString()}
+              type="textarea"
+              value={item}
+              onChange={onChangeItems}
+            />
+          </InputBox>
+        );
+      })}
+      <Input type="button" value="항목 추가" onClick={addItems} />
+      <hr />
       <InputBox>
         <Label htmlFor="double">중복 가능</Label>
         <Input
@@ -65,7 +90,7 @@ export default function Createvote() {
           id="location"
           type="checkbox"
           onClick={() => setLocationOn((prev) => !prev)}
-          style={locationOn ? { display: "none" } : {}}
+          style={locationOn ? { appearance: "none" } : {}}
         />
         {locationOn ? <button>위치정보 지정하기</button> : null}
       </InputBox>
@@ -85,6 +110,11 @@ export default function Createvote() {
           min="0"
           max="200"
           required
+          style={{
+            appearance: "none",
+            MozAppearance: "none",
+            WebkitAppearance: "none",
+          }}
           value={limit}
           onChange={(e) => {
             const value = parseInt(e.target.value);
@@ -98,7 +128,17 @@ export default function Createvote() {
           }}
         />
       </InputBox>
-      <Input type="button" value={"create"} />
+      <Input
+        type="button"
+        value={"create"}
+        onClick={onSubmit}
+        style={{
+          padding: "8px 12px",
+          marginTop: "10px",
+          fontSize: "16px",
+          fontWeight: "600",
+        }}
+      />
     </Wrapper>
   );
 }

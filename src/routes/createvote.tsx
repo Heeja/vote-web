@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import Googlemaps from "../components/googlemaps";
 
 const Wrapper = styled.div`
   display: flex;
@@ -26,50 +27,63 @@ export default function Createvote() {
   const [doubleOn, setDoubleOn] = useState(false);
   const [locationOn, setLocationOn] = useState(false);
   const [anonyOn, setAnonyOn] = useState(false);
+  const [mapOn, setMapOn] = useState(false);
 
   const [title, setTitle] = useState("");
   const [items, setItems] = useState<string[]>([]);
-  const [location, setLocation] = useState("");
   const [limit, setLimit] = useState(0);
 
   const onSubmit = () => {
-    console.log(title, items, doubleOn, location, anonyOn, limit);
+    console.log(title, items, doubleOn, location, anonyOn, limit, mapOn);
     return;
   };
 
   const addItems = () => {
+    if (items.length > 9) {
+      alert("입력할 수 있는 항목 수를 초과하였습니다.");
+      return;
+    }
     setItems((prev) => [...prev, ""]);
   };
 
   const onChangeItems = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const id = e.target.id;
+    if (value.length > 20) {
+      alert("항목의 이름 길이가 초과되었습니다.");
+      return;
+    }
     items[parseInt(id)] = value;
     setItems([...items]);
   };
 
   return (
     <Wrapper>
+      {mapOn ? <Googlemaps /> : null}
       <InputBox>
         <Label htmlFor="votetitle">투표 이름</Label>
         <Input
           id="votetitle"
           type="text"
-          placeholder="Vote title"
+          placeholder="Vote title.(최대 30자)"
           required
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value.length > 30) return;
+            setTitle(e.target.value);
+          }}
         />
       </InputBox>
       {items.map((item, idx) => {
         return (
-          <InputBox>
+          <InputBox key={idx}>
             <Label htmlFor={idx.toString()}>항목</Label>
             <Input
               id={idx.toString()}
               type="textarea"
               value={item}
               onChange={onChangeItems}
+              placeholder={`${idx + 1}항목. (최대 20자)`}
             />
           </InputBox>
         );
@@ -77,7 +91,7 @@ export default function Createvote() {
       <Input type="button" value="항목 추가" onClick={addItems} />
       <hr />
       <InputBox>
-        <Label htmlFor="double">중복 가능</Label>
+        <Label htmlFor="double">중복 선택</Label>
         <Input
           id="double"
           type="checkbox"
@@ -92,7 +106,9 @@ export default function Createvote() {
           onClick={() => setLocationOn((prev) => !prev)}
           style={locationOn ? { appearance: "none" } : {}}
         />
-        {locationOn ? <button>위치정보 지정하기</button> : null}
+        {locationOn ? (
+          <button onClick={() => setMapOn(true)}>위치정보 지정하기</button>
+        ) : null}
       </InputBox>
       <InputBox>
         <Label htmlFor="anonymously">익명 여부</Label>
@@ -103,7 +119,7 @@ export default function Createvote() {
         />
       </InputBox>
       <InputBox>
-        <Label htmlFor="limit">투표 제한인원</Label>
+        <Label htmlFor="limit">투표 제한인원 (최대 200명)</Label>
         <Input
           id="limit"
           type="number"

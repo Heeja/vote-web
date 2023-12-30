@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 const AddressForm = styled.form`
@@ -30,42 +30,43 @@ function Gmapgeocode() {
     e.preventDefault();
   };
 
-  const locationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value);
+  const onAutoComplete = () => {
+    const inputed = locationInput.current as HTMLInputElement;
+    const options = {
+      country: ["kr"],
+      fields: ["formatted_address", "geometry", "name"],
+      strictBounds: false,
+    };
 
-    if (locationInput) {
-      const inputed = locationInput.current as HTMLInputElement;
-      const options = {
-        fields: ["formatted_address", "geometry", "name"],
-        strictBounds: false,
-      };
+    console.log("input location.current:", inputed);
 
-      console.log(inputed);
+    const gMapAutoComplate = new google.maps.places.Autocomplete(inputed);
+    console.log("autocomplate", gMapAutoComplate);
 
-      const gMapAutoComplate = new google.maps.places.Autocomplete(
-        inputed,
-        options
-      );
-      const place = gMapAutoComplate.getPlace();
+    const place = gMapAutoComplate.getPlace();
+    console.log("place", place);
 
-      console.log("autocomplate", gMapAutoComplate);
-      console.log("place", place);
-
-      //   if (addressListId) {
-      //     addressListId.children.namedItem("place-name").textContent = place.name;
-      //     addressListId.children.namedItem("place-name").textContent =
-      //       place.formatted_address;
-      //   }
+    if (addList.current) {
+      addList.current.children.namedItem("place-name").textContent = place.name;
+      addList.current.children.namedItem("place-name").textContent =
+        place.formatted_address;
     }
   };
+
+  useEffect(() => {
+    if (addList.current != null || locationInput.current != null) {
+      onAutoComplete();
+    }
+  }, [location]);
 
   return (
     <AddressForm action="submit" onSubmit={onSubmit}>
       <Input
         id="location"
         type="text"
+        ref={locationInput}
         value={location}
-        onChange={locationChange}
+        onChange={(e) => setLocation(e.target.value)}
         placeholder="주소 입력.."
       />
       <AddressList

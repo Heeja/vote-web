@@ -20,44 +20,77 @@ const AddressList = styled.span`
   height: 100%;
 `;
 
-function Gmapgeocode() {
-  const [location, setLocation] = useState("");
+function GAutoComplete({
+  input,
+  // listBox,
+  setCenter,
+}: {
+  input: React.RefObject<HTMLInputElement>;
+  // listBox: React.RefObject<HTMLElement>;
+  setCenter: React.Dispatch<
+    React.SetStateAction<google.maps.LatLng | google.maps.LatLngLiteral | null>
+  >;
+}) {
+  const inputed = input.current as HTMLInputElement;
+  // const listDiv = listBox.current as HTMLElement;
+  const options = {
+    country: ["kr"],
+    fields: ["formatted_address", "geometry", "name"],
+    strictBounds: false,
+  };
 
-  const addList = useRef<HTMLElement | null>(null);
+  const gMapAutoComplate = new window.google.maps.places.Autocomplete(
+    inputed,
+    options
+  );
+  console.log(gMapAutoComplate);
+
+  gMapAutoComplate.addListener("place_changed", () => {
+    const place = gMapAutoComplate.getPlace();
+    const geometry = place.geometry?.location;
+    if (geometry) {
+      const lat = geometry.lat();
+      const lng = geometry.lng();
+
+      console.log(lat, lng);
+      setCenter({ lat: lat, lng: lng });
+    }
+    // listDiv.children.namedItem("place_name")?.textContent == place.name;
+    // listDiv.children.namedItem("place_address")?.textContent ==
+    //   place.formatted_address;
+  });
+  // console.log("place", place);
+}
+
+export default function Gmapgeocode({
+  setCenter,
+}: {
+  setCenter: React.Dispatch<
+    React.SetStateAction<google.maps.LatLng | google.maps.LatLngLiteral | null>
+  >;
+}) {
+  const [location, setLocation] = useState("");
+  // const addList = useRef<HTMLElement>(null);
   const locationInput = useRef<HTMLInputElement>(null);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  };
-
-  const onAutoComplete = () => {
-    const inputed = locationInput.current as HTMLInputElement;
-    const options = {
-      country: ["kr"],
-      fields: ["formatted_address", "geometry", "name"],
-      strictBounds: false,
-    };
-
-    console.log("input location.current:", inputed);
-
-    const gMapAutoComplate = new google.maps.places.Autocomplete(inputed);
-    console.log("autocomplate", gMapAutoComplate);
-
-    const place = gMapAutoComplate.getPlace();
-    console.log("place", place);
-
-    if (addList.current) {
-      addList.current.children.namedItem("place-name").textContent = place.name;
-      addList.current.children.namedItem("place-name").textContent =
-        place.formatted_address;
+    if (location.length < 1) {
+      alert("검색할 주소를 입력해주세요!");
+      return;
     }
+    GAutoComplete({ input: locationInput, setCenter });
+    console.log("submit action.");
   };
 
   useEffect(() => {
-    if (addList.current != null || locationInput.current != null) {
-      onAutoComplete();
+    if (locationInput != null) {
+      GAutoComplete({
+        input: locationInput,
+        setCenter: setCenter,
+      });
     }
-  }, [location]);
+  }, []);
 
   return (
     <AddressForm action="submit" onSubmit={onSubmit}>
@@ -69,16 +102,14 @@ function Gmapgeocode() {
         onChange={(e) => setLocation(e.target.value)}
         placeholder="주소 입력.."
       />
-      <AddressList
+      {/* <AddressList
         id="address-list"
         ref={addList}
         style={location.length > 0 ? {} : { display: "none" }}
       >
-        <span id="place-name"></span>
-        <span id="place-address"></span>
-      </AddressList>
+        <span id="place_name"></span>
+        <span id="place_address"></span>
+      </AddressList> */}
     </AddressForm>
   );
 }
-
-export default Gmapgeocode;

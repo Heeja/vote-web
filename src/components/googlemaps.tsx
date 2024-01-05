@@ -43,7 +43,7 @@ function MapComponent({
       });
       setMap(newMap);
     }
-  }, []);
+  }, [center]);
 
   return <GMap ref={divMap} id="map" />;
 }
@@ -71,7 +71,7 @@ function MarkerComponent({
 
 export default function Googlemaps() {
   const [map, setMap] = useState<google.maps.Map>();
-  const [center, setcenter] = useState<
+  const [center, setCenter] = useState<
     google.maps.LatLng | null | google.maps.LatLngLiteral
   >({ lat: 37.479306, lng: 126.952736 });
   const [zoom, setZoom] = useState<number>(18);
@@ -81,9 +81,9 @@ export default function Googlemaps() {
   };
 
   return (
-    <Wrapper apiKey={gMapKey} render={render}>
+    <Wrapper apiKey={gMapKey} libraries={["places"]} render={render}>
       <MapBox>
-        {/* <Gmapgeocode /> */}
+        <Gmapgeocode setCenter={setCenter} />
         <MapComponent center={center} zoom={zoom} setMap={setMap} />
         <MarkerComponent center={center} map={map} />
       </MapBox>

@@ -11,18 +11,8 @@ const Input = styled.input`
   margin: 12px 0px;
 `;
 
-const AddressList = styled.span`
-  position: absolute;
-  top: 40px;
-  z-index: 3;
-  background: black;
-  width: 100%;
-  height: 100%;
-`;
-
 function GAutoComplete({
   input,
-  // listBox,
   setCenter,
 }: {
   input: React.RefObject<HTMLInputElement>;
@@ -68,7 +58,6 @@ export default function Gmapgeocode({
   >;
 }) {
   const [location, setLocation] = useState("");
-  // const addList = useRef<HTMLElement>(null);
   const locationInput = useRef<HTMLInputElement>(null);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -80,14 +69,14 @@ export default function Gmapgeocode({
     const Ggeocode = new google.maps.Geocoder();
     Ggeocode.geocode({ address: location }).then(
       (res: google.maps.GeocoderResponse) => {
-        const info = res.results[0].formatted_address;
+        // const info = res.results[0].formatted_address;
         const geometry = res.results[0].geometry.location;
-        const geoArray = [geometry.lat(), geometry.lng()];
-        console.log("info:", info);
-        console.log("geometry:", geoArray);
+        const geoLatLng = { lat: geometry.lat(), lng: geometry.lng() };
+
+        setCenter(geoLatLng);
       }
     );
-    console.log("submit action.");
+    console.log("submit complete.");
   };
 
   useEffect(() => {
@@ -109,14 +98,6 @@ export default function Gmapgeocode({
         onChange={(e) => setLocation(e.target.value)}
         placeholder="주소 입력.."
       />
-      {/* <AddressList
-        id="address-list"
-        ref={addList}
-        style={location.length > 0 ? {} : { display: "none" }}
-      >
-        <span id="place_name"></span>
-        <span id="place_address"></span>
-      </AddressList> */}
     </AddressForm>
   );
 }

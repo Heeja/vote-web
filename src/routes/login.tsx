@@ -37,9 +37,7 @@ function Login() {
 
     setPersistence(auth, browserSessionPersistence).then(() => {
       signInWithEmailAndPassword(auth, loginData.email, loginData.password)
-        .then((res) => {
-          console.log("signIn Res:", res);
-        })
+        .then()
         .catch((err) => {
           const errCode = err.code;
           const errMsg = err.message;

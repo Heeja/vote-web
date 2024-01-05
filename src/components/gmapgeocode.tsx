@@ -43,7 +43,6 @@ function GAutoComplete({
     inputed,
     options
   );
-  console.log(gMapAutoComplate);
 
   gMapAutoComplate.addListener("place_changed", () => {
     const place = gMapAutoComplate.getPlace();
@@ -59,7 +58,6 @@ function GAutoComplete({
     // listDiv.children.namedItem("place_address")?.textContent ==
     //   place.formatted_address;
   });
-  // console.log("place", place);
 }
 
 export default function Gmapgeocode({
@@ -79,7 +77,16 @@ export default function Gmapgeocode({
       alert("검색할 주소를 입력해주세요!");
       return;
     }
-    GAutoComplete({ input: locationInput, setCenter });
+    const Ggeocode = new google.maps.Geocoder();
+    Ggeocode.geocode({ address: location }).then(
+      (res: google.maps.GeocoderResponse) => {
+        const info = res.results[0].formatted_address;
+        const geometry = res.results[0].geometry.location;
+        const geoArray = [geometry.lat(), geometry.lng()];
+        console.log("info:", info);
+        console.log("geometry:", geoArray);
+      }
+    );
     console.log("submit action.");
   };
 

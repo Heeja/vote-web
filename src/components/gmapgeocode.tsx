@@ -16,13 +16,12 @@ function GAutoComplete({
   setCenter,
 }: {
   input: React.RefObject<HTMLInputElement>;
-  // listBox: React.RefObject<HTMLElement>;
-  setCenter: React.Dispatch<
+  setCenter?: React.Dispatch<
     React.SetStateAction<google.maps.LatLng | google.maps.LatLngLiteral | null>
   >;
 }) {
   const inputed = input.current as HTMLInputElement;
-  // const listDiv = listBox.current as HTMLElement;
+
   const options = {
     country: ["kr"],
     fields: ["formatted_address", "geometry", "name"],
@@ -33,50 +32,63 @@ function GAutoComplete({
     inputed,
     options
   );
-
   gMapAutoComplate.addListener("place_changed", () => {
     const place = gMapAutoComplate.getPlace();
     const geometry = place.geometry?.location;
     if (geometry) {
       const lat = geometry.lat();
       const lng = geometry.lng();
-
-      console.log(lat, lng);
-      setCenter({ lat: lat, lng: lng });
+      if (setCenter) {
+        setCenter({ lat: lat, lng: lng });
+      }
     }
-    // listDiv.children.namedItem("place_name")?.textContent == place.name;
-    // listDiv.children.namedItem("place_address")?.textContent ==
-    //   place.formatted_address;
+  });
+
+  const searchBoxs = new window.google.maps.places.SearchBox(inputed);
+  searchBoxs.addListener("place_changed", () => {
+    const places = searchBoxs.getPlaces();
+    if (places?.length == 0) return;
+    console.log(places);
   });
 }
 
 export default function Gmapgeocode({
   setCenter,
+  map,
 }: {
   setCenter: React.Dispatch<
     React.SetStateAction<google.maps.LatLng | google.maps.LatLngLiteral | null>
   >;
+  map: google.maps.Map | undefined;
 }) {
   const [location, setLocation] = useState("");
   const locationInput = useRef<HTMLInputElement>(null);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (location.length < 1) {
       alert("검색할 주소를 입력해주세요!");
       return;
     }
+    const searchBoxs = GAutoComplete;
+    console.log("searchBoxs:", searchBoxs);
+
     const Ggeocode = new google.maps.Geocoder();
     Ggeocode.geocode({ address: location }).then(
       (res: google.maps.GeocoderResponse) => {
-        // const info = res.results[0].formatted_address;
+        const info = res.results[0].formatted_address;
         const geometry = res.results[0].geometry.location;
         const geoLatLng = { lat: geometry.lat(), lng: geometry.lng() };
 
         setCenter(geoLatLng);
+        // const infoWindow = new google.maps.InfoWindow({
+        //   content: info,
+        //   ariaLabel: location,
+        // });
+        // console.log(infoWindow);
       }
     );
-    console.log("submit complete.");
+    // console.log("submit complete.");
   };
 
   useEffect(() => {

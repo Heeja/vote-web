@@ -65,7 +65,6 @@ function MarkerComponent({
 
   useEffect(() => {
     if (map) {
-      console.log("Marker Component useEffect");
       setMarker(newMarker);
       newMarker.setMap(map);
     }

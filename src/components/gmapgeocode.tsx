@@ -54,12 +54,10 @@ function GAutoComplete({
 
 export default function Gmapgeocode({
   setCenter,
-  map,
 }: {
   setCenter: React.Dispatch<
     React.SetStateAction<google.maps.LatLng | google.maps.LatLngLiteral | null>
   >;
-  map: google.maps.Map | undefined;
 }) {
   const [location, setLocation] = useState("");
   const locationInput = useRef<HTMLInputElement>(null);

@@ -2,6 +2,9 @@ import { useState } from "react";
 import styled from "styled-components";
 import Googlemaps from "../components/googlemaps";
 import Modal from "../components/Modal";
+import { database } from "./firebase";
+import { ref, set } from "firebase/database";
+import firebaseSessionStorage from "../util/firebaseSessionStorage";
 
 const Wrapper = styled.div`
 	display: flex;
@@ -20,7 +23,11 @@ const InputBox = styled.span`
 	align-items: center;
 `;
 
-const Input = styled.input``;
+const Input = styled.input`
+	border: none;
+	border-radius: 0.25rem;
+	padding: 0.25rem 0.5rem;
+`;
 
 const Label = styled.label``;
 
@@ -34,6 +41,9 @@ export default function Createvote() {
 	const [items, setItems] = useState<string[]>([]);
 	const [limit, setLimit] = useState(0);
 
+	// user data
+	const userData = firebaseSessionStorage();
+
 	const onSubmit = () => {
 		const submitData = {
 			title: title,
@@ -44,12 +54,16 @@ export default function Createvote() {
 			limit: limit,
 		};
 		console.log(submitData);
-		// console.log(title, items, doubleOn, location, anonyOn, limit, mapOn);
+
+		// firestore save
+		set(ref(database, "vote-web/vote/" + userData.uid), submitData).then(
+			(res) => console.log(res)
+		);
 		return;
 	};
 
 	const addItems = () => {
-		if (items.length > 9) {
+		if (items.length > 4) {
 			alert("입력할 수 있는 항목 수를 초과하였습니다.");
 			return;
 		}
@@ -59,7 +73,7 @@ export default function Createvote() {
 	const onChangeItems = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		const id = e.target.id;
-		if (value.length > 20) {
+		if (value.length > 10) {
 			alert("항목의 이름 길이가 초과되었습니다.");
 			return;
 		}
@@ -78,7 +92,9 @@ export default function Createvote() {
 				</Modal>
 			) : null}
 			<InputBox>
-				<Label htmlFor="votetitle">투표 이름</Label>
+				<Label htmlFor="votetitle" style={{ fontSize: "1.2rem" }}>
+					투표 이름
+				</Label>
 				<Input
 					id="votetitle"
 					type="text"
@@ -100,8 +116,17 @@ export default function Createvote() {
 							type="textarea"
 							value={item}
 							onChange={onChangeItems}
-							placeholder={`${idx + 1}항목. (최대 20자)`}
+							placeholder={`${idx + 1}항목. (최대 10자)`}
 						/>
+						<button
+							onClick={() =>
+								setItems((prev) => [
+									...prev.slice(0, idx),
+									...prev.slice(idx + 1, prev.length + 1),
+								])
+							}>
+							X
+						</button>
 					</InputBox>
 				);
 			})}

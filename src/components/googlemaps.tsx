@@ -84,6 +84,9 @@ export default function Googlemaps() {
 	>({ lat: 37.479306, lng: 126.952736 });
 	const [zoom, setZoom] = useState<number>(18);
 
+	console.log("marker:", marker);
+	console.log("center:", center);
+
 	const render = (status: Status) => {
 		return <h1>{status}</h1>;
 	};

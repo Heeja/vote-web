@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
+
 import Googlemaps from "../components/googlemaps";
 import Modal from "../components/Modal";
+
 import { database } from "./firebase";
-import { ref, set } from "firebase/database";
 import firebaseSessionStorage from "../util/firebaseSessionStorage";
 
 const Wrapper = styled.div`
@@ -32,6 +35,8 @@ const Input = styled.input`
 const Label = styled.label``;
 
 export default function Createvote() {
+	const navigate = useNavigate();
+
 	const [doubleOn, setDoubleOn] = useState(false);
 	const [locationOn, setLocationOn] = useState(false);
 	const [anonyOn, setAnonyOn] = useState(false);
@@ -44,7 +49,7 @@ export default function Createvote() {
 	// user data
 	const userData = firebaseSessionStorage();
 
-	const onSubmit = () => {
+	const onCreateVote = async () => {
 		const submitData = {
 			title: title,
 			items: [...items],
@@ -52,14 +57,15 @@ export default function Createvote() {
 			location: mapOn ? location : "",
 			anonyOn: anonyOn,
 			limit: limit,
+			createTime: Timestamp.fromDate(new Date()),
+			createUser: userData.uid,
 		};
-		console.log(submitData);
 
 		// firestore save
-		set(ref(database, "vote-web/vote/" + userData.uid), submitData).then(
-			(res) => console.log(res)
-		);
-		return;
+		await addDoc(collection(database, "vote"), submitData).then((res) => {
+			console.log(res);
+			return navigate("/user");
+		});
 	};
 
 	const addItems = () => {
@@ -188,7 +194,7 @@ export default function Createvote() {
 			<Input
 				type="button"
 				value={"create"}
-				onClick={onSubmit}
+				onClick={onCreateVote}
 				style={{
 					padding: "8px 12px",
 					marginTop: "10px",

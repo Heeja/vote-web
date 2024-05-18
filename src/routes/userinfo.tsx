@@ -54,7 +54,6 @@ export default function Userinfo() {
 
 	useEffect(() => {
 		if (sessionStorage) {
-			console.log(sessionStorage);
 			setUserInfo({
 				email: sessionStorage.email,
 				pw: "",

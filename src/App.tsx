@@ -12,6 +12,8 @@ import Createvote from "./routes/createvote";
 import Userinfo from "./routes/userinfo";
 import Managevote from "./routes/managevote";
 import ProtectedRoute from "./components/protectedRoute";
+import Detailvote from "./routes/detailvote";
+import Votelist from "./components/votelist";
 
 const GlobalStyles = createGlobalStyle`
   ${reset};
@@ -53,61 +55,68 @@ const GlobalStyles = createGlobalStyle`
 `;
 
 const Wrapped = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 `;
 
 // router
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/join",
-    element: <Join />,
-  },
-  {
-    path: "/user",
-    element: (
-      <ProtectedRoute>
-        <User />
-      </ProtectedRoute>
-    ),
-    children: [
-      {
-        path: "createvote",
-        element: <Createvote />,
-      },
-      {
-        path: "userinfo",
-        element: <Userinfo />,
-      },
-      {
-        path: "managevote",
-        element: <Managevote />,
-      },
-    ],
-  },
-  {
-    path: "/vote/:id",
-    element: <Vote />,
-  },
+	{
+		path: "/",
+		element: <Home />,
+	},
+	{
+		path: "/login",
+		element: <Login />,
+	},
+	{
+		path: "/join",
+		element: <Join />,
+	},
+	{
+		path: "/user",
+		element: (
+			<ProtectedRoute>
+				<User />
+			</ProtectedRoute>
+		),
+		children: [
+			{
+				path: "createvote",
+				element: <Createvote />,
+			},
+			{
+				path: "userinfo",
+				element: <Userinfo />,
+			},
+			{
+				path: "managevote",
+				element: <Managevote />,
+				children: [
+					{
+						path: "",
+						element: <Votelist />,
+					},
+					{ path: ":id", element: <Detailvote /> },
+				],
+			},
+		],
+	},
+	{
+		path: "/vote/:id",
+		element: <Vote />,
+	},
 ]);
 
 function App() {
-  return (
-    <Wrapped>
-      <GlobalStyles />
-      <RouterProvider router={router} />
-    </Wrapped>
-  );
+	return (
+		<Wrapped>
+			<GlobalStyles />
+			<RouterProvider router={router} />
+		</Wrapped>
+	);
 }
 
 export default App;

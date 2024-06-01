@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
@@ -43,8 +43,11 @@ export default function Createvote() {
 	const [mapOn, setMapOn] = useState(false);
 
 	const [title, setTitle] = useState("");
-	const [items, setItems] = useState<string[]>([]);
+	const [items, setItems] = useState<{ [key: string]: number }>({});
 	const [limit, setLimit] = useState(0);
+
+	const addItem = useRef<HTMLInputElement | null>(null);
+	const [addItemName, setAddItemName] = useState("");
 
 	// user data
 	const userData = firebaseSessionStorage();
@@ -52,7 +55,7 @@ export default function Createvote() {
 	const onCreateVote = async () => {
 		const submitData = {
 			title: title,
-			items: [...items],
+			items: items,
 			doubleOn: doubleOn,
 			location: mapOn ? location : "",
 			anonyOn: anonyOn,
@@ -62,29 +65,26 @@ export default function Createvote() {
 		};
 
 		// firestore save
-		await addDoc(collection(database, "vote"), submitData).then((res) => {
-			console.log(res);
+		await addDoc(collection(database, "vote"), submitData).then(() => {
+			// console.log(res);
 			return navigate("/user");
 		});
 	};
 
 	const addItems = () => {
-		if (items.length > 4) {
+		if (addItemName.length < 1) return;
+		if (Object.keys(items).includes(addItemName)) {
+			alert("이미 추가된 항목 이름입니다.");
+			setAddItemName("");
+			return;
+		}
+		if (Object.keys(items).length > 4) {
 			alert("입력할 수 있는 항목 수를 초과하였습니다.");
 			return;
 		}
-		setItems((prev) => [...prev, ""]);
-	};
-
-	const onChangeItems = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		const id = e.target.id;
-		if (value.length > 10) {
-			alert("항목의 이름 길이가 초과되었습니다.");
-			return;
-		}
-		items[parseInt(id)] = value;
-		setItems([...items]);
+		setItems((prev) => ({ ...prev, [addItemName]: 0 }));
+		setAddItemName("");
+		addItem.current && addItem.current.focus();
 	};
 
 	return (
@@ -113,30 +113,27 @@ export default function Createvote() {
 					}}
 				/>
 			</InputBox>
-			{items.map((item, idx) => {
+			{Object.keys(items).map((item, idx) => {
 				return (
 					<InputBox key={idx}>
-						<Label htmlFor={idx.toString()}>항목</Label>
-						<Input
-							id={idx.toString()}
-							type="textarea"
-							value={item}
-							onChange={onChangeItems}
-							placeholder={`${idx + 1}항목. (최대 10자)`}
-						/>
-						<button
-							onClick={() =>
-								setItems((prev) => [
-									...prev.slice(0, idx),
-									...prev.slice(idx + 1, prev.length + 1),
-								])
-							}>
-							X
-						</button>
+						<Label htmlFor={idx.toString()}>투표항목</Label>
+						<div>{item}</div>
+						<button onClick={() => delete items[item]}>X</button>
 					</InputBox>
 				);
 			})}
-			<Input type="button" value="항목 추가" onClick={addItems} />
+			{Object.keys(items).length < 5 && (
+				<div>
+					<input
+						ref={addItem}
+						type="text"
+						value={addItemName}
+						onChange={(e) => setAddItemName(e.target.value)}
+						placeholder={`최대 10자`}
+					/>
+					<Input type="button" value="항목 추가" onClick={addItems} />
+				</div>
+			)}
 			<hr />
 			<InputBox>
 				<Label htmlFor="double">중복 선택</Label>

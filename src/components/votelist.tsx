@@ -22,7 +22,7 @@ const TableBox = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	/* gap: 0.1rem; */
-	border: 0.1rem solid #b1a85c;
+	/* border: 0.1rem solid #b1a85c; */
 	padding: 0.5rem 2rem;
 	width: 90vw;
 `;
@@ -36,6 +36,7 @@ const VoteBox = styled.div`
 	text-align: center;
 
 	div {
+		margin: 0.2rem 0;
 		border: 0.1rem solid #737373;
 	}
 `;
@@ -54,10 +55,21 @@ const TableHeader = styled.div`
 	}
 `;
 
-// firestore api
+const TableItem = styled.div<{ $flex: number }>`
+	flex: ${(props) => props.$flex};
+	width: "100%";
+	padding: "0.2rem";
+	overflow: "clip";
+`;
 
+// type interface
+interface IVotelist {
+	[key: string]: DocumentData;
+}
+[];
+// firestore api
 async function MyVoteList() {
-	const data: DocumentData[] = [];
+	const data: IVotelist[] = [];
 	const userUid = firebaseSessionStorage().uid;
 	const listQuery = query(
 		collection(database, "vote"),
@@ -65,20 +77,25 @@ async function MyVoteList() {
 		orderBy("createTime", "desc")
 	);
 	const response = await getDocs(listQuery);
-	response.forEach((doc) => data.push(doc.data()));
-
+	response.forEach((doc) => data.push({ [doc.id]: doc.data() }));
 	return data;
 }
 
 // main
 export default function Votelist() {
 	const navigate = useNavigate();
-	const [voteList, setVoteList] = useState<DocumentData[]>();
+	const [voteList, setVoteList] = useState<IVotelist[]>();
 
 	// fucntions
 	const onClickNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
-		const { id } = { id: e.currentTarget.id };
-		voteList && navigate(id, { state: { voteInfo: voteList[parseInt(id)] } });
+		const { id, dataset } = e.currentTarget;
+
+		if (dataset.idx) {
+			voteList &&
+				navigate(id, {
+					state: { voteInfo: voteList[parseInt(dataset.idx)][id] },
+				});
+		}
 		return;
 	};
 
@@ -91,147 +108,41 @@ export default function Votelist() {
 
 		return () => {};
 	}, []);
+
 	return (
 		<>
 			<h1>투표 관리</h1>
 			<TableBox>
 				<TableHeader>
-					<div
-						style={{
-							flex: 1,
-							width: "100%",
-							padding: "0.2rem",
-							overflow: "clip",
-						}}>
-						No.
-					</div>
-					<div
-						style={{
-							flex: 5,
-							width: "100%",
-							padding: "0.2rem",
-							overflow: "clip",
-						}}>
-						title
-					</div>
-					<div
-						style={{
-							flex: 2,
-							width: "100%",
-							padding: "0.2rem",
-							overflow: "clip",
-						}}>
-						Annoymous
-					</div>
-					<div
-						style={{
-							flex: 2,
-							width: "100%",
-							padding: "0.2rem",
-							overflow: "clip",
-						}}>
-						Duplicate
-					</div>
-					<div
-						style={{
-							flex: 1,
-							width: "100%",
-							padding: "0.2rem",
-							overflow: "clip",
-						}}>
-						limit
-					</div>
-					<div
-						style={{
-							flex: 2,
-							width: "100%",
-							padding: "0.2rem",
-							overflow: "clip",
-						}}>
-						location
-					</div>
-					<div
-						style={{
-							flex: 3,
-							width: "100%",
-							padding: "0.2rem",
-							overflow: "clip",
-						}}>
-						createDate
-					</div>
+					<TableItem $flex={1}>No.</TableItem>
+					<TableItem $flex={5}>Title</TableItem>
+					<TableItem $flex={2}>Anonym</TableItem>
+					<TableItem $flex={2}>Duple</TableItem>
+					<TableItem $flex={2}>limit</TableItem>
+					<TableItem $flex={3}>location</TableItem>
+					<TableItem $flex={3}>CreateDate</TableItem>
 				</TableHeader>
+				<hr style={{ width: "100%", borderColor: "#c1c1c1" }} />
 				{voteList?.map((list, idx) => {
+					const key = Object.keys(list)[0];
 					const fireBaseTime = new Date(
-						list.createTime.seconds * 1000 +
-							list.createTime.nanoseconds / 1000000
+						list[key].createTime.seconds * 1000 +
+							list[key].createTime.nanoseconds / 1000000
 					);
 					const date = fireBaseTime.toLocaleDateString();
-
 					return (
-						<VoteBox key={idx} onClick={onClickNavigate} id={idx.toString()}>
-							<div
-								style={{
-									flex: 1,
-									width: "100%",
-									padding: "0.2rem",
-									overflow: "clip",
-								}}>
-								{idx + 1}
-							</div>
-							<div
-								style={{
-									flex: 5,
-									width: "100%",
-									padding: "0.2rem",
-									overflow: "clip",
-								}}>
-								{list.title}
-							</div>
-							<div
-								style={{
-									flex: 2,
-									width: "100%",
-									padding: "0.2rem",
-									overflow: "clip",
-								}}>
-								{list.anonyOn ? "Y" : "N"}
-							</div>
-							<div
-								style={{
-									flex: 2,
-									width: "100%",
-									padding: "0.2rem",
-									overflow: "clip",
-								}}>
-								{list.doubleOn ? "Y" : "N"}
-							</div>
-							<div
-								style={{
-									flex: 1,
-									width: "100%",
-									padding: "0.2rem",
-									overflow: "clip",
-								}}>
-								{list.limit}
-							</div>
-							<div
-								style={{
-									flex: 2,
-									width: "100%",
-									padding: "0.2rem",
-									overflow: "clip",
-								}}>
-								{list.location ? "Y" : "-"}
-							</div>
-							<div
-								style={{
-									flex: 3,
-									width: "100%",
-									padding: "0.2rem",
-									overflow: "clip",
-								}}>
-								{date}
-							</div>
+						<VoteBox
+							key={idx}
+							onClick={onClickNavigate}
+							id={key}
+							data-idx={idx.toString()}>
+							<TableItem $flex={1}>{idx + 1}</TableItem>
+							<TableItem $flex={5}>{list[key].title}</TableItem>
+							<TableItem $flex={2}>{list[key].anonyOn ? "Y" : "N"}</TableItem>
+							<TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
+							<TableItem $flex={2}>{list[key].limit}</TableItem>
+							<TableItem $flex={3}>{list[key].location ? "Y" : "-"}</TableItem>
+							<TableItem $flex={3}>{date}</TableItem>
 						</VoteBox>
 					);
 				})}

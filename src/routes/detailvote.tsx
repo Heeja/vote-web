@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 
+// import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
+// import { ReactComponent as SortDown } from "../asset/svg/sortDown.svg";
+
 const Box = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -16,7 +19,7 @@ const Title = styled.h1`
 `;
 const Body = styled.div`
 	> div:nth-child(2n) {
-		background-color: #8899ff;
+		background-color: #889aff90;
 	}
 `;
 const Flex = styled.div<{ $type?: string }>`
@@ -24,7 +27,7 @@ const Flex = styled.div<{ $type?: string }>`
 	width: 80vw;
 	justify-content: space-around;
 	align-items: center;
-	background-color: ${(props) => props.$type === "header" && "#ff9999"};
+	background-color: ${(props) => props.$type === "header" && "#ff999990"};
 	color: ${(props) => props.$type === "header" && "snow"};
 `;
 const FlexItem = styled.div<{ $type?: string }>`
@@ -40,6 +43,11 @@ export default function Detailvote() {
 	const { state } = useLocation();
 	const [voteInfo, setVoteInfo] = useState<DocumentData>();
 
+	// functions
+
+	const onSortResult = () => {
+		return;
+	};
 	useEffect(() => {
 		if (state.voteInfo) {
 			const fireBaseTime = new Date(
@@ -59,7 +67,7 @@ export default function Detailvote() {
 		voteInfo && (
 			<Box>
 				<Title>{voteInfo.title}</Title>
-				<VoteResultHeader />
+				<VoteResultHeader onSortResult={onSortResult} />
 				<Body>
 					<VoteResultBody data={voteInfo.items} />
 				</Body>
@@ -68,13 +76,21 @@ export default function Detailvote() {
 	);
 }
 
-function VoteResultHeader() {
+function VoteResultHeader({ onSortResult }: { onSortResult: () => void }) {
 	return (
 		<Flex $type="header">
-			<FlexItem $type="header">순서</FlexItem>
-			<FlexItem $type="header">항목</FlexItem>
-			<FlexItem $type="header">투표수</FlexItem>
-			<FlexItem $type="header">점유율</FlexItem>
+			<FlexItem $type="header" onClick={onSortResult}>
+				순서
+			</FlexItem>
+			<FlexItem $type="header" onClick={onSortResult}>
+				항목
+			</FlexItem>
+			<FlexItem $type="header" onClick={onSortResult}>
+				투표수
+			</FlexItem>
+			<FlexItem $type="header" onClick={onSortResult}>
+				점유율
+			</FlexItem>
 		</Flex>
 	);
 }
@@ -86,7 +102,7 @@ function VoteResultBody({ data }: { data: { [key: string]: number } }) {
 	return Object.keys(data).map((key, idx) => {
 		const percent = data[key] === 0 ? 0 : (data[key] / totalCount) * 100;
 		return (
-			<Flex>
+			<Flex key={idx}>
 				<FlexItem>{idx + 1}</FlexItem>
 				<FlexItem>{key}</FlexItem>
 				<FlexItem>{data[key]}</FlexItem>

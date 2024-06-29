@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
+import Modal from "../components/Modal";
+import VoteEditModal from "../components/detailVote/editModal";
+import ResultBody from "../components/detailVote/resultBody";
+import HeaderBody from "../components/detailVote/headerBody";
+
 // import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
 // import { ReactComponent as SortDown } from "../asset/svg/sortDown.svg";
 
@@ -30,28 +35,15 @@ const Body = styled.div`
 		background-color: #889aff90;
 	}
 `;
-const Flex = styled.div<{ $type?: string }>`
-	display: flex;
-	width: 80vw;
-	justify-content: space-around;
-	align-items: center;
-	background-color: ${(props) => props.$type === "header" && "#ff999990"};
-	color: ${(props) => props.$type === "header" && "snow"};
-`;
-const FlexItem = styled.div<{ $type?: string }>`
-	flex: 1;
-	text-align: center;
-	overflow: visible;
-	border-bottom: ${(props) =>
-		props.$type !== "header" && "0.1rem solid #c6c6ff"};
-	padding: 0.4rem 0;
-`;
-const Button = styled.button`
+
+const ButtonBox = styled.div`
 	position: absolute;
 	left: 1rem;
+	display: flex;
+	gap: 0.6rem;
+`;
+const Button = styled.button`
 	padding: 0.3rem 1rem;
-	background-color: #172267;
-	color: snow;
 	border: 0.08rem solid snow;
 `;
 
@@ -59,6 +51,9 @@ export default function Detailvote() {
 	const navigate = useNavigate();
 	const { state } = useLocation();
 	const [voteInfo, setVoteInfo] = useState<DocumentData>();
+	const [editModal, setEditModal] = useState(false);
+
+	const headerList = ["순서", "항목", "투표수", "점유율"];
 
 	// functions
 	const onGoBack = () => {
@@ -88,50 +83,31 @@ export default function Detailvote() {
 		voteInfo && (
 			<Box>
 				<TitleBox>
-					<Button onClick={onGoBack}>뒤로가기</Button>
+					<ButtonBox>
+						<Button onClick={onGoBack}>뒤로가기</Button>
+						<Button onClick={() => setEditModal((prev) => !prev)}>
+							수정하기
+						</Button>
+					</ButtonBox>
 					<Title>{voteInfo.title}</Title>
 				</TitleBox>
-				<VoteResultHeader onSortResult={onSortResult} />
+				<HeaderBody headerList={headerList} onSortResult={onSortResult} />
 				<Body>
-					<VoteResultBody data={voteInfo.items} />
+					<ResultBody data={voteInfo.items} />
 				</Body>
+				{editModal && (
+					<Modal
+						title={"투표 수정"}
+						isVisible={editModal}
+						onClose={() => setEditModal(false)}>
+						<VoteEditModal
+							voteInfo={voteInfo}
+							setVoteInfo={setVoteInfo}
+							onClose={() => setEditModal(false)}
+						/>
+					</Modal>
+				)}
 			</Box>
 		)
 	);
-}
-
-function VoteResultHeader({ onSortResult }: { onSortResult: () => void }) {
-	return (
-		<Flex $type="header">
-			<FlexItem $type="header" onClick={onSortResult}>
-				순서
-			</FlexItem>
-			<FlexItem $type="header" onClick={onSortResult}>
-				항목
-			</FlexItem>
-			<FlexItem $type="header" onClick={onSortResult}>
-				투표수
-			</FlexItem>
-			<FlexItem $type="header" onClick={onSortResult}>
-				점유율
-			</FlexItem>
-		</Flex>
-	);
-}
-
-function VoteResultBody({ data }: { data: { [key: string]: number } }) {
-	const totalResult: number[] = Object.values(data);
-	const totalCount = totalResult.reduce((before, result) => before + result);
-
-	return Object.keys(data).map((key, idx) => {
-		const percent = data[key] === 0 ? 0 : (data[key] / totalCount) * 100;
-		return (
-			<Flex key={idx}>
-				<FlexItem>{idx + 1}</FlexItem>
-				<FlexItem>{key}</FlexItem>
-				<FlexItem>{data[key]}</FlexItem>
-				<FlexItem>{percent}%</FlexItem>
-			</Flex>
-		);
-	});
 }

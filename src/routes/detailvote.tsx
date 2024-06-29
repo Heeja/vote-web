@@ -1,6 +1,6 @@
 import { DocumentData } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 // import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
@@ -8,11 +8,19 @@ import styled from "styled-components";
 
 const Box = styled.div`
 	display: flex;
+	position: relative;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	margin-top: 1rem;
 	padding: 0 1rem 1rem 1rem;
+`;
+const TitleBox = styled.div`
+	display: flex;
+	position: relative;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
 `;
 const Title = styled.h1`
 	border-bottom: 0.1rem solid #fff;
@@ -38,12 +46,25 @@ const FlexItem = styled.div<{ $type?: string }>`
 		props.$type !== "header" && "0.1rem solid #c6c6ff"};
 	padding: 0.4rem 0;
 `;
+const Button = styled.button`
+	position: absolute;
+	left: 1rem;
+	padding: 0.3rem 1rem;
+	background-color: #172267;
+	color: snow;
+	border: 0.08rem solid snow;
+`;
 
 export default function Detailvote() {
+	const navigate = useNavigate();
 	const { state } = useLocation();
 	const [voteInfo, setVoteInfo] = useState<DocumentData>();
 
 	// functions
+	const onGoBack = () => {
+		navigate(-1);
+		return;
+	};
 
 	const onSortResult = () => {
 		return;
@@ -66,7 +87,10 @@ export default function Detailvote() {
 	return (
 		voteInfo && (
 			<Box>
-				<Title>{voteInfo.title}</Title>
+				<TitleBox>
+					<Button onClick={onGoBack}>뒤로가기</Button>
+					<Title>{voteInfo.title}</Title>
+				</TitleBox>
 				<VoteResultHeader onSortResult={onSortResult} />
 				<Body>
 					<VoteResultBody data={voteInfo.items} />

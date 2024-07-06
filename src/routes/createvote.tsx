@@ -65,7 +65,10 @@ export default function Createvote() {
 		};
 
 		// firestore save
-		await addDoc(collection(database, "vote"), submitData).then(() => {
+		await addDoc(
+			collection(database, anonyOn ? "publicVote" : "privateVote"),
+			submitData
+		).then(() => {
 			// console.log(res);
 			return navigate("/user");
 		});

@@ -68,11 +68,16 @@ interface IVotelist {
 }
 [];
 // firestore api
-async function MyVoteList() {
+async function VoteList({
+	userUid,
+	collectionName,
+}: {
+	userUid: unknown;
+	collectionName: string;
+}) {
 	const data: IVotelist[] = [];
-	const userUid = firebaseSessionStorage().uid;
 	const listQuery = query(
-		collection(database, "vote"),
+		collection(database, collectionName),
 		where("createUser", "==", userUid),
 		orderBy("createTime", "desc")
 	);
@@ -84,7 +89,8 @@ async function MyVoteList() {
 // main
 export default function Votelist() {
 	const navigate = useNavigate();
-	const [voteList, setVoteList] = useState<IVotelist[]>();
+	const [voteList, setVoteList] = useState<IVotelist[]>([]);
+	const userUid = firebaseSessionStorage().uid;
 
 	// fucntions
 	const onClickNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -101,8 +107,14 @@ export default function Votelist() {
 
 	useEffect(() => {
 		async function responseData() {
-			const data = await MyVoteList();
-			setVoteList(data);
+			await VoteList({
+				userUid: userUid,
+				collectionName: "privateVote",
+			}).then((res) => setVoteList((prev) => [...prev, ...res]));
+			await VoteList({
+				userUid: userUid,
+				collectionName: "publicVote",
+			}).then((res) => setVoteList((prev) => [...prev, ...res]));
 		}
 		responseData();
 

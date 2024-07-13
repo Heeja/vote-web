@@ -83,6 +83,8 @@ async function VoteList({
 	);
 	const response = await getDocs(listQuery);
 	response.forEach((doc) => data.push({ [doc.id]: doc.data() }));
+
+	console.log(data);
 	return data;
 }
 
@@ -116,9 +118,10 @@ export default function Votelist() {
 				collectionName: "publicVote",
 			}).then((res) => setVoteList((prev) => [...prev, ...res]));
 		}
-		responseData();
 
-		return () => {};
+		return () => {
+			responseData();
+		};
 	}, []);
 
 	return (

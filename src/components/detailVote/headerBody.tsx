@@ -26,9 +26,9 @@ export default function HeaderBody({
 }) {
 	return (
 		<Flex $type="header">
-			{headerList.map((text) => {
+			{headerList.map((text, idx) => {
 				return (
-					<FlexItem $type="header" onClick={onSortResult}>
+					<FlexItem key={"header-" + idx} $type="header" onClick={onSortResult}>
 						{text}
 					</FlexItem>
 				);

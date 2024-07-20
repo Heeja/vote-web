@@ -33,7 +33,10 @@ const ModalContent = styled.div`
 `;
 
 const ModalHeader = styled.div`
-	padding: 10px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
 	border-bottom: 1px solid #ddd;
 `;
 
@@ -43,14 +46,14 @@ const ModalTitle = styled.span`
 `;
 
 const ModalCloseButton = styled.div`
-	position: absolute;
-	top: 0;
-	right: 0;
 	width: 30px;
 	height: 30px;
 	border: none;
 	background-color: transparent;
 	cursor: pointer;
+	font-size: 1.2rem;
+	text-align: center;
+	align-content: center;
 
 	:hover {
 		background-color: #ddd;
@@ -88,7 +91,7 @@ const Modal = ({ title, isVisible, onClose, children }: IProps) => {
 			<ModalContent>
 				<ModalHeader>
 					<ModalTitle>{title}</ModalTitle>
-					<ModalCloseButton onClick={handleClose}>X</ModalCloseButton>
+					<ModalCloseButton onClick={handleClose}>&times;</ModalCloseButton>
 				</ModalHeader>
 				<ModalBody>{children}</ModalBody>
 			</ModalContent>

@@ -28,7 +28,7 @@ export default function ResultBody({
 	return Object.keys(data).map((key, idx) => {
 		const percent = data[key] === 0 ? 0 : (data[key] / totalCount) * 100;
 		return (
-			<Flex key={idx}>
+			<Flex key={"Body-" + idx}>
 				<FlexItem>{idx + 1}</FlexItem>
 				<FlexItem>{key}</FlexItem>
 				<FlexItem>{data[key]}</FlexItem>

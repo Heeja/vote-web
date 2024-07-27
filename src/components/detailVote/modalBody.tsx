@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import { BasicButton } from "../../common/basicStyled";
 import { DocumentData } from "firebase/firestore";
+import { IVoteItems } from "../../common/voteTypes";
+import { useState } from "react";
 
 const Flex = styled.div<{ $type?: string }>`
 	display: flex;
@@ -31,20 +33,20 @@ export default function ModalBody({
 	changeFunc,
 	disabled,
 }: {
-	data: { [key: string]: number };
+	data: IVoteItems[];
 	changeFunc: React.Dispatch<React.SetStateAction<DocumentData>>;
 	disabled?: boolean;
 }) {
 	// todo: firestore에 key: value로 저장되어서 key값이 항목이름으로 저장되었다.
 	// 항목이름을 변경하려면 1. 기존 값을 지우고 새로운 값을 추가 | 2. 항목이름과 투표수를 나눠서 저장.
-	return Object.keys(data).map((key, idx) => {
+	return data.map((item, idx) => {
 		return (
-			<Flex key={idx}>
+			<Flex key={item.itemName}>
 				<FlexItem>
 					{disabled ? (
-						<>{key}</>
+						<>{item.itemName}</>
 					) : (
-						<ItemEditInput value={key} onChange={() => {}} />
+						<ItemEditInput value={item.itemName} onChange={(e) => {}} />
 					)}
 				</FlexItem>
 				<FlexItem>

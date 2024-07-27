@@ -13,6 +13,7 @@ import styled from "styled-components";
 import { database } from "../routes/firebase";
 
 import firebaseSessionStorage from "../util/firebaseSessionStorage";
+import TransformDateString from "../util/transformDateString";
 
 // styld Componnets
 
@@ -143,7 +144,7 @@ export default function Votelist() {
 						list[key].createTime.seconds * 1000 +
 							list[key].createTime.nanoseconds / 1000000
 					);
-					const date = fireBaseTime.toLocaleDateString();
+					const date = TransformDateString(fireBaseTime);
 					return (
 						<VoteBox
 							key={idx}

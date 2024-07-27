@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { IVoteItems } from "../../common/voteTypes";
 
 const Flex = styled.div<{ $type?: string }>`
 	display: flex;
@@ -17,11 +18,7 @@ const FlexItem = styled.div<{ $type?: string }>`
 	padding: 0.4rem 0;
 `;
 
-export default function ResultBody({
-	data,
-}: {
-	data: { itemName: string; score: number }[];
-}) {
+export default function ResultBody({ data }: { data: IVoteItems[] }) {
 	const totalCount = data.reduce((before, result) => before + result.score, 0);
 
 	return data.map((item, idx) => {

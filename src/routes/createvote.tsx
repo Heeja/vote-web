@@ -8,6 +8,7 @@ import Modal from "../components/Modal";
 
 import { database } from "./firebase";
 import firebaseSessionStorage from "../util/firebaseSessionStorage";
+import { IVoteItems } from "../common/voteTypes";
 
 const Wrapper = styled.div`
 	display: flex;
@@ -43,7 +44,7 @@ export default function Createvote() {
 	const [mapOn, setMapOn] = useState(false);
 
 	const [title, setTitle] = useState("");
-	const [items, setItems] = useState<{ itemName: string; score: number }[]>([]);
+	const [items, setItems] = useState<IVoteItems[]>([]);
 	const [limit, setLimit] = useState(0);
 
 	const addItem = useRef<HTMLInputElement | null>(null);

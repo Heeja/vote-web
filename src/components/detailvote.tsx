@@ -7,6 +7,7 @@ import Modal from "../components/Modal";
 import VoteEditModal from "../components/detailVote/editModal";
 import ResultBody from "../components/detailVote/resultBody";
 import HeaderBody from "../components/detailVote/headerBody";
+import TransformDateString from "../util/transformDateString";
 
 // import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
 // import { ReactComponent as SortDown } from "../asset/svg/sortDown.svg";
@@ -23,13 +24,18 @@ const Box = styled.div`
 const TitleBox = styled.div`
 	display: flex;
 	position: relative;
-	justify-content: center;
+	justify-content: space-between;
 	align-items: center;
 	width: 100%;
 `;
 const Title = styled.h1`
 	border-bottom: 0.1rem solid #fff;
 `;
+
+const SubText = styled.p`
+	font-size: 0.8rem;
+`;
+
 const Body = styled.div`
 	> div:nth-child(2n) {
 		background-color: #889aff90;
@@ -37,7 +43,6 @@ const Body = styled.div`
 `;
 
 const ButtonBox = styled.div`
-	position: absolute;
 	left: 1rem;
 	display: flex;
 	gap: 0.6rem;
@@ -70,9 +75,10 @@ export default function Detailvote() {
 				state.voteInfo.createTime.seconds * 1000 +
 					state.voteInfo.createTime.nanoseconds / 1000000
 			);
+
 			setVoteInfo({
 				...state.voteInfo,
-				createTime: fireBaseTime.toLocaleDateString(),
+				createTime: TransformDateString(fireBaseTime),
 			});
 		}
 
@@ -90,6 +96,7 @@ export default function Detailvote() {
 						</Button>
 					</ButtonBox>
 					<Title>{voteInfo.title}</Title>
+					<SubText>생성일: {voteInfo.createTime}</SubText>
 				</TitleBox>
 				<HeaderBody headerList={headerList} onSortResult={onSortResult} />
 				<Body>

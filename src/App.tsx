@@ -12,8 +12,8 @@ import Createvote from "./routes/createvote";
 import Userinfo from "./routes/userinfo";
 import Managevote from "./routes/managevote";
 import ProtectedRoute from "./components/protectedRoute";
-import Detailvote from "./routes/detailvote";
 import Votelist from "./components/votelist";
+import Detailvote from "./components/detailvote";
 
 const GlobalStyles = createGlobalStyle`
   ${reset};

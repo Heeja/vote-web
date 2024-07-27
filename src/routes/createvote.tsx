@@ -43,7 +43,7 @@ export default function Createvote() {
 	const [mapOn, setMapOn] = useState(false);
 
 	const [title, setTitle] = useState("");
-	const [items, setItems] = useState<{ [key: string]: number }>({});
+	const [items, setItems] = useState<{ itemName: string; score: number }[]>([]);
 	const [limit, setLimit] = useState(0);
 
 	const addItem = useRef<HTMLInputElement | null>(null);
@@ -85,7 +85,7 @@ export default function Createvote() {
 			alert("입력할 수 있는 항목 수를 초과하였습니다.");
 			return;
 		}
-		setItems((prev) => ({ ...prev, [addItemName]: 0 }));
+		setItems((prev) => [...prev, { itemName: addItemName, score: 0 }]);
 		setAddItemName("");
 		addItem.current && addItem.current.focus();
 	};
@@ -116,12 +116,21 @@ export default function Createvote() {
 					}}
 				/>
 			</InputBox>
-			{Object.keys(items).map((item, idx) => {
+			{items.map((item, idx) => {
 				return (
 					<InputBox key={idx}>
 						<Label htmlFor={idx.toString()}>투표항목</Label>
-						<div>{item}</div>
-						<button onClick={() => delete items[item]}>X</button>
+						<div>{item.itemName}</div>
+						<button
+							id={item.itemName}
+							onClick={() => {
+								const sliceItems = items.slice(0, idx - 1);
+								if (idx > 0) sliceItems.push(...items.slice(idx));
+
+								setItems(sliceItems);
+							}}>
+							X
+						</button>
 					</InputBox>
 				);
 			})}

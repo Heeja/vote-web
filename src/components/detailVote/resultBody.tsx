@@ -20,18 +20,17 @@ const FlexItem = styled.div<{ $type?: string }>`
 export default function ResultBody({
 	data,
 }: {
-	data: { [key: string]: number };
+	data: { itemName: string; score: number }[];
 }) {
-	const totalResult: number[] = Object.values(data);
-	const totalCount = totalResult.reduce((before, result) => before + result);
+	const totalCount = data.reduce((before, result) => before + result.score, 0);
 
-	return Object.keys(data).map((key, idx) => {
-		const percent = data[key] === 0 ? 0 : (data[key] / totalCount) * 100;
+	return data.map((item, idx) => {
+		const percent = item.score === 0 ? 0 : (item.score / totalCount) * 100;
 		return (
 			<Flex key={"Body-" + idx}>
 				<FlexItem>{idx + 1}</FlexItem>
-				<FlexItem>{key}</FlexItem>
-				<FlexItem>{data[key]}</FlexItem>
+				<FlexItem>{item.itemName}</FlexItem>
+				<FlexItem>{item.score}</FlexItem>
 				<FlexItem>{percent}%</FlexItem>
 			</Flex>
 		);

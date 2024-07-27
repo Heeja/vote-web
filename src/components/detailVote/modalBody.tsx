@@ -37,18 +37,37 @@ export default function ModalBody({
 	changeFunc: React.Dispatch<React.SetStateAction<DocumentData>>;
 	disabled?: boolean;
 }) {
-	return data.map((item) => {
+	const [copyList, setCopyList] = useState([...data]);
+
+	// todo: focus 날라가는 것 수정!!!
+	return copyList.map((item, idx) => {
 		return (
 			<Flex key={item.itemName}>
 				<FlexItem>
 					{disabled ? (
 						<>{item.itemName}</>
 					) : (
-						<ItemEditInput value={item.itemName} onChange={(e) => {}} />
+						<ItemEditInput
+							value={item.itemName}
+							onChange={(e) => {
+								const { value } = e.target;
+								setCopyList((prev) =>
+									prev.map((item, prevIdx) =>
+										idx === prevIdx ? { ...item, itemName: value } : item
+									)
+								);
+							}}
+						/>
 					)}
 				</FlexItem>
 				<FlexItem>
-					<BasicButton disabled={disabled}>수정</BasicButton>
+					<BasicButton
+						disabled={disabled}
+						onClick={() => {
+							console.log("수정");
+						}}>
+						수정
+					</BasicButton>
 					<BasicButton disabled={disabled}>제거</BasicButton>
 				</FlexItem>
 			</Flex>

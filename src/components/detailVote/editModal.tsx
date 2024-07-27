@@ -53,6 +53,11 @@ export default function VoteEditModal({
 		setEditVoteInfo((prev) => ({ ...prev, title: value }));
 		return;
 	}
+
+	function SubmitChangeVoteInfo() {
+		console.log("수정하기 요청");
+		return;
+	}
 	return votedCheck ? (
 		<BasicColumnFlex>
 			<BasicFlex>
@@ -89,7 +94,7 @@ export default function VoteEditModal({
 
 			<ButtonBox>
 				<BasicButton onClick={onClose}>돌아가기</BasicButton>
-				<BasicButton onClick={() => {}}>수정하기</BasicButton>
+				<BasicButton onClick={SubmitChangeVoteInfo}>수정하기</BasicButton>
 			</ButtonBox>
 		</EditModalBox>
 	);

@@ -37,9 +37,7 @@ export default function ModalBody({
 	changeFunc: React.Dispatch<React.SetStateAction<DocumentData>>;
 	disabled?: boolean;
 }) {
-	// todo: firestore에 key: value로 저장되어서 key값이 항목이름으로 저장되었다.
-	// 항목이름을 변경하려면 1. 기존 값을 지우고 새로운 값을 추가 | 2. 항목이름과 투표수를 나눠서 저장.
-	return data.map((item, idx) => {
+	return data.map((item) => {
 		return (
 			<Flex key={item.itemName}>
 				<FlexItem>

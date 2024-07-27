@@ -109,20 +109,46 @@ export default function Votelist() {
 
 	useEffect(() => {
 		async function responseData() {
+			setVoteList([]); // VoteList가 전체를 불러오기 때문에 기존 list는 초기화 후 다시 할당한다.
 			await VoteList({
 				userUid: userUid,
 				collectionName: "privateVote",
-			}).then((res) => setVoteList((prev) => [...prev, ...res]));
+			}).then((res) => {
+				// todo: 중복값을 제거하고 넣는 것이 좋은지... 체크 후 수정
+				// const resKeyList = res.filter((item) => {
+				// 	const key = Object.keys(item)[0];
+				// 	if (keyList.find((listKey) => listKey === key)) {
+				// 		return false;
+				// 	} else {
+				// 		return true;
+				// 	}
+				// });
+				// console.log("filter:", resKeyList);
+
+				setVoteList((prev) => [...prev, ...res]);
+			});
 			await VoteList({
 				userUid: userUid,
 				collectionName: "publicVote",
-			}).then((res) => setVoteList((prev) => [...prev, ...res]));
+			}).then((res) => {
+				// const resKeyList = res.filter((item) => {
+				// 	const key = Object.keys(item)[0];
+				// 	if (keyList.find((listKey) => listKey === key)) {
+				// 		return false;
+				// 	} else {
+				// 		return true;
+				// 	}
+				// });
+				setVoteList((prev) => [...prev, ...res]);
+			});
 		}
 
 		return () => {
 			responseData();
 		};
 	}, []);
+
+	console.log("votelist:", voteList);
 
 	return (
 		<>

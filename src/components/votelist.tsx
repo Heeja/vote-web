@@ -22,23 +22,31 @@ const TableBox = styled.div`
 	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
-	/* gap: 0.1rem; */
-	/* border: 0.1rem solid #b1a85c; */
-	padding: 0.5rem 2rem;
+	gap: 0.5rem;
+	padding: 1rem 0.2rem;
 	width: 90vw;
+
+	hr {
+		margin: 0.2rem 0;
+	}
 `;
 
 const VoteBox = styled.div`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	gap: 0.5rem;
+
 	width: 100%;
 	text-align: center;
+	font-size: 0.8rem;
+	border: 0.1rem solid #e0c0c0;
+	border-radius: 0.4rem;
 
 	div {
 		margin: 0.2rem 0;
-		border: 0.1rem solid #737373;
+	}
+	div:last-child {
+		font-size: 0.7rem;
 	}
 `;
 
@@ -50,10 +58,7 @@ const TableHeader = styled.div`
 	gap: 0.5rem;
 	width: 100%;
 	text-align: center;
-
-	div {
-		border: 0.1rem solid #737373;
-	}
+	font-size: 0.8rem;
 `;
 
 const TableItem = styled.div<{ $flex: number }>`
@@ -156,12 +161,12 @@ export default function Votelist() {
 					<TableItem $flex={1}>No.</TableItem>
 					<TableItem $flex={5}>Title</TableItem>
 					<TableItem $flex={2}>Anonym</TableItem>
-					<TableItem $flex={2}>Duple</TableItem>
+					{/* <TableItem $flex={2}>Duple</TableItem>
 					<TableItem $flex={2}>limit</TableItem>
-					<TableItem $flex={3}>location</TableItem>
+					<TableItem $flex={3}>location</TableItem> */}
 					<TableItem $flex={3}>CreateDate</TableItem>
 				</TableHeader>
-				<hr style={{ width: "100%", borderColor: "#c1c1c1" }} />
+				<hr />
 				{voteList?.map((list, idx) => {
 					const key = Object.keys(list)[0];
 					const fireBaseTime = new Date(
@@ -178,9 +183,9 @@ export default function Votelist() {
 							<TableItem $flex={1}>{idx + 1}</TableItem>
 							<TableItem $flex={5}>{list[key].title}</TableItem>
 							<TableItem $flex={2}>{list[key].anonyOn ? "Y" : "N"}</TableItem>
-							<TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
+							{/* <TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
 							<TableItem $flex={2}>{list[key].limit}</TableItem>
-							<TableItem $flex={3}>{list[key].location ? "Y" : "-"}</TableItem>
+							<TableItem $flex={3}>{list[key].location ? "Y" : "-"}</TableItem> */}
 							<TableItem $flex={3}>{date}</TableItem>
 						</VoteBox>
 					);

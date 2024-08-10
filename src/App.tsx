@@ -27,16 +27,27 @@ const GlobalStyles = createGlobalStyle`
     sans-serif;
   }
   hr {
-    width: 80%;
-    margin: 8px 20px;
+    width: 100%;
+	border-color: "#c1c1c1";
+	margin: 0.5rem 0;
   }
   
   h1 {
-    font-size: 1.8rem;
-    margin: 10px 20px;
-    padding: 2px 4px;
+    font-size: 1.5rem;
+    padding: 1px 2px;
   }
-
+  h2 {
+	font-size: 1.4rem;
+  }
+  h3 {
+	  font-size: 1.3rem;
+	}
+	h4 {
+		font-size: 1.2rem;
+	}
+	h5 {
+		font-size: 1.1rem;
+	}
   a {
     color: snow;
 

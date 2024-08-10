@@ -2,14 +2,14 @@ import styled from "styled-components";
 import { BasicButton } from "../../common/basicStyled";
 import { DocumentData } from "firebase/firestore";
 import { IVoteItems } from "../../common/voteTypes";
-import { useState } from "react";
+import { InputHTMLAttributes, useState } from "react";
 
 const Flex = styled.div<{ $type?: string }>`
 	display: flex;
 	width: 100%;
 	justify-content: space-around;
 	align-items: center;
-	background-color: ${(props) => props.$type === "header" && "#ff999990"};
+	/* background-color: ${(props) => props.$type === "header" && "#ff999990"}; */
 	color: ${(props) => props.$type === "header" && "snow"};
 `;
 const FlexItem = styled.div<{ $type?: string }>`
@@ -39,26 +39,33 @@ export default function ModalBody({
 }) {
 	const [copyList, setCopyList] = useState([...data]);
 
+	// funtions
+	function EditInput({
+		e,
+		index,
+	}: {
+		e: React.ChangeEvent<HTMLInputElement>;
+		index: number;
+	}) {
+		const { value } = e.target;
+		setCopyList((prev) =>
+			prev.map((item, prevIdx) =>
+				index === prevIdx ? { ...item, itemName: value } : item
+			)
+		);
+	}
 	// todo: focus 날라가는 것 수정!!!
-	return copyList.map((item, idx) => {
+	return copyList.map((item, index) => {
 		return (
 			<Flex key={item.itemName}>
 				<FlexItem>
-					{disabled ? (
-						<>{item.itemName}</>
-					) : (
-						<ItemEditInput
-							value={item.itemName}
-							onChange={(e) => {
-								const { value } = e.target;
-								setCopyList((prev) =>
-									prev.map((item, prevIdx) =>
-										idx === prevIdx ? { ...item, itemName: value } : item
-									)
-								);
-							}}
-						/>
-					)}
+					<ItemEditInput
+						value={item.itemName}
+						disabled={disabled}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+							EditInput({ e, index })
+						}
+					/>
 				</FlexItem>
 				<FlexItem>
 					<BasicButton

@@ -34,7 +34,7 @@ const TableBox = styled.div`
 const VoteBox = styled.div`
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: stretch;
 
 	width: 100%;
 	text-align: center;

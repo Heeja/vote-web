@@ -5,7 +5,7 @@ const Flex = styled.div<{ $type?: string }>`
 	display: flex;
 	width: 80vw;
 	justify-content: space-around;
-	align-items: center;
+	align-items: stretch;
 	background-color: ${(props) => props.$type === "header" && "#ff999990"};
 	color: ${(props) => props.$type === "header" && "snow"};
 `;

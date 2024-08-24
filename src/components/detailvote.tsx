@@ -48,16 +48,22 @@ const ButtonBox = styled.div`
 	justify-content: space-around;
 	gap: 0.6rem;
 `;
-const Button = styled.button`
+const Button = styled.button<{ disabled?: boolean }>`
 	padding: 0.3rem 1rem;
 	border: 0.08rem solid snow;
 	font-size: 0.9rem;
+	color: ${(props) => (props.disabled ? "white" : "black")};
 `;
 
+interface IVoteInfoItems {
+	itemName: string;
+	score: number;
+}
 export default function Detailvote() {
 	const navigate = useNavigate();
 	const { state } = useLocation();
 	const [voteInfo, setVoteInfo] = useState<DocumentData>();
+	const [enableEdit, setEnableEdit] = useState(false);
 	const [editModal, setEditModal] = useState(false);
 
 	const headerList = ["순서", "항목", "투표수", "점유율"];
@@ -82,6 +88,9 @@ export default function Detailvote() {
 				...state.voteInfo,
 				createTime: TransformDateString(fireBaseTime),
 			});
+			state.voteInfo.items.forEach((list: IVoteInfoItems) =>
+				list.score > 0 ? setEnableEdit(true) : ""
+			);
 		}
 
 		return () => {};
@@ -110,7 +119,9 @@ export default function Detailvote() {
 				)}
 				<ButtonBox>
 					<Button onClick={onGoBack}>뒤로가기</Button>
-					<Button onClick={() => setEditModal((prev) => !prev)}>
+					<Button
+						disabled={enableEdit}
+						onClick={() => setEditModal((prev) => !prev)}>
 						수정하기
 					</Button>
 				</ButtonBox>

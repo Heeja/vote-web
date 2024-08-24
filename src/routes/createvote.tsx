@@ -42,6 +42,7 @@ export default function Createvote() {
 	const [locationOn, setLocationOn] = useState(false);
 	const [anonyOn, setAnonyOn] = useState(false);
 	const [mapOn, setMapOn] = useState(false);
+	const [secretBallot, setSecretBallot] = useState(false);
 
 	const [title, setTitle] = useState("");
 	const [items, setItems] = useState<IVoteItems[]>([]);
@@ -60,6 +61,7 @@ export default function Createvote() {
 			doubleOn: doubleOn,
 			location: mapOn ? location : "",
 			anonyOn: anonyOn,
+			secretBallot: secretBallot,
 			limit: limit,
 			createTime: Timestamp.fromDate(new Date()),
 			createUser: userData.uid,
@@ -173,6 +175,14 @@ export default function Createvote() {
 					id="anonymously"
 					type="checkbox"
 					onClick={() => setAnonyOn((prev) => !prev)}
+				/>
+			</InputBox>
+			<InputBox>
+				<Label htmlFor="secretBallot">비공개 개표</Label>
+				<Input
+					id="secretBallot"
+					type="checkbox"
+					onClick={() => setSecretBallot((prev) => !prev)}
 				/>
 			</InputBox>
 			<InputBox>

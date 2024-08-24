@@ -77,6 +77,7 @@ export default function Detailvote() {
 	const onSortResult = () => {
 		return;
 	};
+	console.log(state);
 	useEffect(() => {
 		if (state.voteInfo) {
 			const fireBaseTime = new Date(

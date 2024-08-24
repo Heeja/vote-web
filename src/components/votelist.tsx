@@ -103,12 +103,14 @@ export default function Votelist() {
 	const onClickNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
 		const { id, dataset } = e.currentTarget;
 
-		if (dataset.idx) {
-			voteList &&
-				navigate(id, {
-					state: { voteInfo: voteList[parseInt(dataset.idx)][id] },
-				});
-		}
+		navigate(`/vote/${id}`);
+
+		// if (dataset.idx) {
+		// 	voteList &&
+		// 		navigate(id, {
+		// 			state: { voteInfo: voteList[parseInt(dataset.idx)][id] },
+		// 		});
+		// }
 		return;
 	};
 

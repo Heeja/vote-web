@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { BasicButton } from "../../common/basicStyled";
 import { DocumentData } from "firebase/firestore";
 import { IVoteItems } from "../../common/voteTypes";
-import { InputHTMLAttributes, useState } from "react";
+import { useState } from "react";
 
 const Flex = styled.div<{ $type?: string }>`
 	display: flex;
@@ -30,7 +30,7 @@ const ItemEditInput = styled.input``;
 
 export default function ModalBody({
 	data,
-	changeFunc,
+	// changeFunc,
 	disabled,
 }: {
 	data: IVoteItems[];

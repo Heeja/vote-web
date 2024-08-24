@@ -1,5 +1,11 @@
 import styled from "styled-components";
 
+export const Flex = styled.div`
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+	gap: 0.75rem;
+`;
 export const BasicFlex = styled.div`
 	display: flex;
 	align-items: center;

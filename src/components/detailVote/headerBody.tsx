@@ -7,6 +7,7 @@ const Flex = styled.div<{ $type?: string }>`
 	align-items: center;
 	background-color: ${(props) => props.$type === "header" && "#ff999990"};
 	color: ${(props) => props.$type === "header" && "snow"};
+	border-bottom: 0.1rem solid #fff;
 `;
 const FlexItem = styled.div<{ $type?: string }>`
 	flex: 1;

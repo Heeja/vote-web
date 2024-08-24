@@ -20,36 +20,38 @@ const Box = styled.div`
 	justify-content: center;
 	margin-top: 1rem;
 	padding: 0 1rem 1rem 1rem;
+	gap: 1rem;
 `;
-const TitleBox = styled.div`
-	display: flex;
-	position: relative;
-	justify-content: space-between;
-	align-items: center;
-	width: 100%;
-`;
+
 const Title = styled.h1`
+	text-align: center;
 	border-bottom: 0.1rem solid #fff;
+	margin: 0.3rem 0;
 `;
 
 const SubText = styled.p`
+	align-self: flex-end;
 	font-size: 0.8rem;
+	margin-bottom: 0.3rem;
 `;
 
 const Body = styled.div`
+	gap: 0;
 	> div:nth-child(2n) {
 		background-color: #889aff90;
 	}
 `;
 
 const ButtonBox = styled.div`
-	left: 1rem;
+	width: 100%;
 	display: flex;
+	justify-content: space-around;
 	gap: 0.6rem;
 `;
 const Button = styled.button`
 	padding: 0.3rem 1rem;
 	border: 0.08rem solid snow;
+	font-size: 0.9rem;
 `;
 
 export default function Detailvote() {
@@ -88,18 +90,10 @@ export default function Detailvote() {
 	return (
 		voteInfo && (
 			<Box>
-				<TitleBox>
-					<ButtonBox>
-						<Button onClick={onGoBack}>뒤로가기</Button>
-						<Button onClick={() => setEditModal((prev) => !prev)}>
-							수정하기
-						</Button>
-					</ButtonBox>
-					<Title>{voteInfo.title}</Title>
-					<SubText>생성일: {voteInfo.createTime}</SubText>
-				</TitleBox>
-				<HeaderBody headerList={headerList} onSortResult={onSortResult} />
+				<Title>{voteInfo.title}</Title>
+				<SubText>생성일: {voteInfo.createTime}</SubText>
 				<Body>
+					<HeaderBody headerList={headerList} onSortResult={onSortResult} />
 					<ResultBody data={voteInfo.items} />
 				</Body>
 				{editModal && (
@@ -114,6 +108,12 @@ export default function Detailvote() {
 						/>
 					</Modal>
 				)}
+				<ButtonBox>
+					<Button onClick={onGoBack}>뒤로가기</Button>
+					<Button onClick={() => setEditModal((prev) => !prev)}>
+						수정하기
+					</Button>
+				</ButtonBox>
 			</Box>
 		)
 	);

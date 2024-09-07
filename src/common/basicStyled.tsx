@@ -6,6 +6,11 @@ export const Flex = styled.div`
 	width: 100%;
 	gap: 0.75rem;
 `;
+export const CenterFlex = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+`;
 export const BasicFlex = styled.div`
 	display: flex;
 	align-items: center;

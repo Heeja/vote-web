@@ -3,7 +3,7 @@ import { IVoteItems } from "../../common/voteTypes";
 
 const Flex = styled.div<{ $type?: string }>`
 	display: flex;
-	width: 80vw;
+	width: 80%;
 	justify-content: space-around;
 	align-items: stretch;
 	background-color: ${(props) => props.$type === "header" && "#ff999990"};

@@ -24,7 +24,7 @@ const TableBox = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 1rem 0.2rem;
-	width: 90vw;
+	width: 90%;
 
 	hr {
 		margin: 0.2rem 0;
@@ -103,8 +103,10 @@ export default function Votelist() {
 	const onClickNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
 		const { id } = e.currentTarget; // dataset
 
+		// 투표하기로 이동
 		navigate(`/vote/${id}`);
 
+		// Todo: 디자인 변경으로 수정 페이지 수정 필요!
 		// if (dataset.idx) {
 		// 	voteList &&
 		// 		navigate(id, {

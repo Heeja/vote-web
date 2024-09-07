@@ -3,13 +3,20 @@ import {
 	collection,
 	getDocs,
 	query,
+	runTransaction,
 	Timestamp,
+	updateDoc,
 	where,
 } from "firebase/firestore";
 import { database } from "../routes/firebase";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { BasicButton, BasicColumnFlex, Flex } from "../common/basicStyled";
+import {
+	BasicButton,
+	BasicColumnFlex,
+	CenterFlex,
+	Flex,
+} from "../common/basicStyled";
 
 // styled components
 // const Item = styled.div`
@@ -51,7 +58,8 @@ export default function Vote() {
 	const { id } = useParams();
 	const [voteData, setVoteData] = useState<IVoteData[]>([]);
 
-	async function getVoteInfo() {
+	// Functions
+	const getVoteInfo = async () => {
 		console.log("함수 시작!");
 		try {
 			// const docRef = doc(database, `vote/${id}`);
@@ -73,20 +81,54 @@ export default function Vote() {
 			console.log(error);
 			return error;
 		}
+	};
+
+	function SelectVote() {
+		console.log("선택했다");
+		return;
 	}
 
-	useEffect(() => {
-		console.log(voteData);
-	}, [voteData]);
+	// Todo: 투표 반영 함수
+	function SubmitVote() {
+		// try {
+		// 	await runTransaction(database, async (transaction) => {
+		// 	  const sfDoc = await transaction.update();
+		// 	  if (!sfDoc.exists()) {
+		// 		throw "Document does not exist!";
+		// 	  }
+		// 	  const newPopulation = sfDoc.data().population + 1;
+		// 	  transaction.update(sfDocRef, { population: newPopulation });
+		// 	});
+		// 	console.log("Transaction successfully committed!");
+		//   } catch (e) {
+		// 	console.log("Transaction failed: ", e);
+		//   }
+	}
+
+	// useEffect(() => {
+	// 	console.log(voteData);
+	// }, [voteData]);
 
 	return (
 		<>
-			<h1>투표 페이지.</h1>
-			<button onClick={getVoteInfo}>실행</button>
+			<CenterFlex style={{ width: "100%", position: "relative" }}>
+				<button
+					style={{
+						position: "absolute",
+						left: 0,
+						fontSize: "0.8rem",
+						fontWeight: "bold",
+						padding: "0.2rem 0.6rem",
+					}}
+					onClick={getVoteInfo}>
+					뒤로가기
+				</button>
+				<h1>투표 페이지.</h1>
+			</CenterFlex>
 			<hr />
 			{voteData?.map((data) => {
 				return (
-					<BasicColumnFlex>
+					<BasicColumnFlex key={id + "_" + data.title}>
 						<h1>{data.title}</h1>
 						<div
 							style={{
@@ -121,7 +163,9 @@ export default function Vote() {
 									)}
 									<ItemName
 										style={{ width: !data.secretBallot ? "40%" : "50%" }}>
-										<BasicButton style={{ backgroundColor: "whitesmoke" }}>
+										<BasicButton
+											style={{ backgroundColor: "whitesmoke" }}
+											onClick={SelectVote}>
 											투표하기
 										</BasicButton>
 									</ItemName>

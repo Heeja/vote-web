@@ -9,23 +9,31 @@ import {
 import { database } from "../routes/firebase";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { BasicButton, Flex } from "../common/basicStyled";
+import { BasicButton, BasicColumnFlex, Flex } from "../common/basicStyled";
 
 // styled components
-const Item = styled.div`
-	width: 100%;
-	display: flex;
-`;
+// const Item = styled.div`
+// 	width: 100%;
+// 	display: flex;
+// `;
+
+// const Score = styled.div`
+// 	padding-right: 0.3rem;
+// 	display: flex;
+// 	align-items: center;
+// 	justify-content: center;
+// 	min-width: 60px;
+// 	/* justify-content: flex-end; */
+// `;
 const ItemName = styled.div`
-	flex: 4;
 	padding-right: 0.3rem;
 	display: flex;
 	justify-content: center;
+	align-items: center;
+	font-size: 0.9rem;
+	text-align: center;
 `;
-const Score = styled.div`
-	flex: 1;
-	/* justify-content: flex-end; */
-`;
+
 // type interface
 interface IVoteData {
 	anonyOn: boolean;
@@ -59,7 +67,7 @@ export default function Vote() {
 
 			// console.log(data.docs);
 			data.forEach((doc) => {
-				setVoteData((prev) => [...prev, doc.data() as IVoteData]);
+				setVoteData([doc.data() as IVoteData]);
 			});
 		} catch (error) {
 			console.log(error);
@@ -78,43 +86,72 @@ export default function Vote() {
 			<hr />
 			{voteData?.map((data) => {
 				return (
-					<div>
+					<BasicColumnFlex>
 						<h1>{data.title}</h1>
-						<hr />
-						<Flex style={{ padding: "0.2rem 1rem" }}>
-							<div style={{ flex: 4 }}>Outcome</div>
-							{!data.secretBallot && <div style={{ flex: 1 }}>score</div>}
-							<div style={{ flex: 2 }}>Button</div>
-						</Flex>
-						<hr />
-						<div>
-							{data.items.map((list, idx) => {
-								return (
-									<Flex style={{ padding: "0.2rem 1rem" }}>
-										<Item key={`${list.itemName}_${idx}`}>
-											<ItemName>
-												<p>{list.itemName}</p>
-											</ItemName>
-											{!data.secretBallot && <Score>{list.score}</Score>}
-											<BasicButton style={{ flex: 2 }}>투표하기</BasicButton>
-										</Item>
-									</Flex>
-								);
-							})}
+						<div
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								width: "100%",
+							}}>
+							<hr />
+							<Flex>
+								<ItemName style={{ width: !data.secretBallot ? "40%" : "50%" }}>
+									Outcome
+								</ItemName>
+								{!data.secretBallot && (
+									<ItemName style={{ width: "20%" }}>Score</ItemName>
+								)}
+								<ItemName style={{ width: !data.secretBallot ? "40%" : "50%" }}>
+									Button
+								</ItemName>
+							</Flex>
+							<hr />
 						</div>
-						<button
-							onClick={() => {
-								console.log("다시 투표");
+
+						{data.items.map((list, idx) => {
+							return (
+								<Flex key={`${list.itemName}_${idx}`}>
+									<ItemName
+										style={{ width: !data.secretBallot ? "40%" : "50%" }}>
+										{list.itemName}
+									</ItemName>
+									{!data.secretBallot && (
+										<ItemName style={{ width: "20%" }}>{list.score}</ItemName>
+									)}
+									<ItemName
+										style={{ width: !data.secretBallot ? "40%" : "50%" }}>
+										<BasicButton style={{ backgroundColor: "whitesmoke" }}>
+											투표하기
+										</BasicButton>
+									</ItemName>
+								</Flex>
+							);
+						})}
+						<hr />
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "center",
+								gap: "1rem",
+								width: "80%",
 							}}>
-							다시
-						</button>
-						<button
-							onClick={() => {
-								console.log("투표!");
-							}}>
-							확인
-						</button>
-					</div>
+							<BasicButton
+								style={{ flex: 1, backgroundColor: "tomato" }}
+								onClick={() => {
+									console.log("다시 투표");
+								}}>
+								다시
+							</BasicButton>
+							<BasicButton
+								style={{ flex: 1, backgroundColor: "royalblue" }}
+								onClick={() => {
+									console.log("투표!");
+								}}>
+								확인
+							</BasicButton>
+						</div>
+					</BasicColumnFlex>
 				);
 			})}
 		</>

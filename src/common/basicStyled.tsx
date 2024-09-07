@@ -16,11 +16,13 @@ export const BasicColumnFlex = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	text-align: center;
 	gap: 0.5rem;
+	width: 100%;
 `;
 
 export const BasicButton = styled.button`
-	padding: 0.5rem 1rem;
+	padding: 0.3rem 0.8rem;
 `;
 
 export const WarningText = styled.h3`

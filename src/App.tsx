@@ -57,13 +57,31 @@ const GlobalStyles = createGlobalStyle`
       cursor: pointer;
     }
   }
+  #root {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+  }
 `;
 
 const Wrapped = styled.div`
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	/* justify-content: center; */
 	align-items: center;
+	width: 100%;
+	height: 100%;
+`;
+
+const MobileSize = styled.div`
+	align-self: center;
+	width: 360px;
+	height: 735px;
+	border: 0.1rem solid #fff;
+	border-radius: 1rem;
+	padding: 16px 18px;
 `;
 
 // router
@@ -117,10 +135,12 @@ const router = createBrowserRouter([
 
 function App() {
 	return (
-		<Wrapped>
-			<GlobalStyles />
-			<RouterProvider router={router} />
-		</Wrapped>
+		<MobileSize>
+			<Wrapped>
+				<GlobalStyles />
+				<RouterProvider router={router} />
+			</Wrapped>
+		</MobileSize>
 	);
 }
 

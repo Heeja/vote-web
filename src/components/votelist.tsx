@@ -101,7 +101,7 @@ export default function Votelist() {
 
 	// fucntions
 	const onClickNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
-		const { id, dataset } = e.currentTarget;
+		const { id } = e.currentTarget; // dataset
 
 		navigate(`/vote/${id}`);
 

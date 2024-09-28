@@ -74,7 +74,7 @@ interface IVotelist {
 }
 [];
 // firestore api
-async function VoteList({
+async function FirestroeVoteLists({
 	userUid,
 	collectionName,
 }: {
@@ -119,7 +119,7 @@ export default function Votelist() {
 	useEffect(() => {
 		async function responseData() {
 			setVoteList([]); // VoteList가 전체를 불러오기 때문에 기존 list는 초기화 후 다시 할당한다.
-			await VoteList({
+			await FirestroeVoteLists({
 				userUid: userUid,
 				collectionName: "privateVote",
 			}).then((res) => {
@@ -136,7 +136,7 @@ export default function Votelist() {
 
 				setVoteList((prev) => [...prev, ...res]);
 			});
-			await VoteList({
+			await FirestroeVoteLists({
 				userUid: userUid,
 				collectionName: "publicVote",
 			}).then((res) => {
@@ -181,7 +181,9 @@ export default function Votelist() {
 					return (
 						<VoteBox
 							key={idx}
-							onClick={onClickNavigate}
+							onClick={() =>
+								navigate(`/vote/${key}?anony=${list[key].anonyOn}`)
+							}
 							id={key}
 							data-idx={idx.toString()}>
 							<TableItem $flex={1}>{idx + 1}</TableItem>

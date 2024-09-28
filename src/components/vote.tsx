@@ -1,15 +1,13 @@
-import { useParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import {
 	collection,
 	getDocs,
 	query,
-	runTransaction,
 	Timestamp,
-	updateDoc,
 	where,
 } from "firebase/firestore";
 import { database } from "../routes/firebase";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 import {
 	BasicButton,
@@ -55,6 +53,7 @@ interface IVoteData {
 }
 
 export default function Vote() {
+	const [parameter] = useSearchParams();
 	const { id } = useParams();
 	const [voteData, setVoteData] = useState<IVoteData[]>([]);
 
@@ -63,7 +62,10 @@ export default function Vote() {
 		console.log("함수 시작!");
 		try {
 			// const docRef = doc(database, `vote/${id}`);
-			const queryCollection = collection(database, "publicVote");
+			const queryCollection = collection(
+				database,
+				parameter.get("anony") === "true" ? "publicVote" : "privateVote"
+			);
 			const collectionWhere = where("__name__", "==", id);
 			const fireQuery = query(queryCollection, collectionWhere);
 			const data = await getDocs(fireQuery);
@@ -111,7 +113,8 @@ export default function Vote() {
 
 	return (
 		<>
-			<CenterFlex style={{ width: "100%", position: "relative" }}>
+			<CenterFlex
+				style={{ width: "100%", position: "relative", padding: "1rem 0" }}>
 				<button
 					style={{
 						position: "absolute",
@@ -123,7 +126,6 @@ export default function Vote() {
 					onClick={getVoteInfo}>
 					뒤로가기
 				</button>
-				<h1>투표 페이지.</h1>
 			</CenterFlex>
 			<hr />
 			{voteData?.map((data) => {

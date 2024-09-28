@@ -4,33 +4,33 @@ import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
 
 export default function ProtectedRoute({
-  children,
+	children,
 }: {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    const unsubcribe = auth.onAuthStateChanged((currentUser) => {
-      setIsLoading(false);
-      if (currentUser) {
-        setUser(currentUser);
-      } else {
-        setUser(null);
-      }
-    });
+	useEffect(() => {
+		const unsubcribe = auth.onAuthStateChanged((currentUser) => {
+			setIsLoading(false);
+			if (currentUser) {
+				setUser(currentUser);
+			} else {
+				setUser(null);
+			}
+		});
 
-    return () => unsubcribe();
-  }, []);
+		return () => unsubcribe();
+	}, []);
 
-  if (isLoading) {
-    return null;
-  }
+	if (isLoading) {
+		return null;
+	}
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
+	if (!user) {
+		return <Navigate to="/login" />;
+	}
 
-  return children;
+	return children;
 }

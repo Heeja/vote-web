@@ -1,7 +1,9 @@
+import { Outlet } from "react-router-dom";
+
 export default function Managevote() {
-  return (
-    <>
-      <h1>투표 관리</h1>
-    </>
-  );
+	return (
+		<>
+			<Outlet />
+		</>
+	);
 }

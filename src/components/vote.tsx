@@ -92,17 +92,19 @@ export default function Vote() {
 
 	// Todo: 투표 반영 함수
 	function SubmitVote() {
-		console.log("투표시작!");
 		try {
-			if (Object.entries(selectItem).length > 0) return new Error();
+			if (Object.entries(selectItem).length < 1) throw new Error("빈값");
+
+			// console.log({ ...voteData[0].items, ...selectItem });
 
 			runTransaction(database, async (transaction) => {
 				transaction.update(
 					doc(
 						database,
-						parameter.get("anony") === "true" ? "publicVote" : "privateVote"
+						parameter.get("anony") === "true" ? "publicVote" : "privateVote",
+						"items"
 					),
-					selectItem
+					{ ...voteData[0].items, ...selectItem }
 				);
 				//   if (!sfDoc) {
 				// 	throw "Document does not exist!";
@@ -118,7 +120,7 @@ export default function Vote() {
 		}
 	}
 
-	console.log(selectItem);
+	console.log(voteData);
 
 	return (
 		<>
@@ -192,7 +194,7 @@ export default function Vote() {
 												})
 											}>
 											{selectItem[idx]?.itemName === list.itemName
-												? "선택됨"
+												? "선택완료"
 												: "선택하기"}
 										</BasicButton>
 									</ItemName>

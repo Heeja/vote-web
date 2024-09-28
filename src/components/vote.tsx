@@ -1,8 +1,10 @@
-import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
 	collection,
+	doc,
 	getDocs,
 	query,
+	runTransaction,
 	Timestamp,
 	where,
 } from "firebase/firestore";
@@ -52,16 +54,20 @@ interface IVoteData {
 	title: string;
 }
 
+interface ISelectItem {
+	[key: number]: { itemName: string; score: number };
+}
+
 export default function Vote() {
 	const [parameter] = useSearchParams();
 	const { id } = useParams();
 	const [voteData, setVoteData] = useState<IVoteData[]>([]);
 
+	const [selectItem, setSelectItem] = useState<ISelectItem>({});
+
 	// Functions
 	const getVoteInfo = async () => {
-		console.log("함수 시작!");
 		try {
-			// const docRef = doc(database, `vote/${id}`);
 			const queryCollection = collection(
 				database,
 				parameter.get("anony") === "true" ? "publicVote" : "privateVote"
@@ -75,7 +81,6 @@ export default function Vote() {
 				return { success: false, error: "조건에 맞는 문서가 없습니다." };
 			}
 
-			// console.log(data.docs);
 			data.forEach((doc) => {
 				setVoteData([doc.data() as IVoteData]);
 			});
@@ -85,31 +90,35 @@ export default function Vote() {
 		}
 	};
 
-	function SelectVote() {
-		console.log("선택했다");
-		return;
-	}
-
 	// Todo: 투표 반영 함수
 	function SubmitVote() {
-		// try {
-		// 	await runTransaction(database, async (transaction) => {
-		// 	  const sfDoc = await transaction.update();
-		// 	  if (!sfDoc.exists()) {
-		// 		throw "Document does not exist!";
-		// 	  }
-		// 	  const newPopulation = sfDoc.data().population + 1;
-		// 	  transaction.update(sfDocRef, { population: newPopulation });
-		// 	});
-		// 	console.log("Transaction successfully committed!");
-		//   } catch (e) {
-		// 	console.log("Transaction failed: ", e);
-		//   }
+		console.log("투표시작!");
+		try {
+			if (Object.entries(selectItem).length > 0) return new Error();
+
+			runTransaction(database, async (transaction) => {
+				transaction.update(
+					doc(
+						database,
+						parameter.get("anony") === "true" ? "publicVote" : "privateVote"
+					),
+					selectItem
+				);
+				//   if (!sfDoc) {
+				// 	throw "Document does not exist!";
+				//   }
+				//   const newPopulation = sfDoc.data().population + 1;
+				//   transaction.update(sfDocRef, { population: newPopulation });
+			})
+				.then((res) => console.log(res))
+				.catch((err) => new Error(err));
+			console.log("Transaction successfully committed!");
+		} catch (e) {
+			console.log("Transaction failed: ", e);
+		}
 	}
 
-	// useEffect(() => {
-	// 	console.log(voteData);
-	// }, [voteData]);
+	console.log(selectItem);
 
 	return (
 		<>
@@ -166,9 +175,25 @@ export default function Vote() {
 									<ItemName
 										style={{ width: !data.secretBallot ? "40%" : "50%" }}>
 										<BasicButton
-											style={{ backgroundColor: "whitesmoke" }}
-											onClick={SelectVote}>
-											투표하기
+											style={{
+												width: "100%",
+												backgroundColor: `${
+													selectItem[idx]?.itemName === list.itemName
+														? "#94C9FF"
+														: "whitesmoke"
+												}`,
+											}}
+											onClick={() =>
+												setSelectItem({
+													[idx]: {
+														itemName: list.itemName,
+														score: list.score + 1,
+													},
+												})
+											}>
+											{selectItem[idx]?.itemName === list.itemName
+												? "선택됨"
+												: "선택하기"}
 										</BasicButton>
 									</ItemName>
 								</Flex>
@@ -183,17 +208,17 @@ export default function Vote() {
 								width: "80%",
 							}}>
 							<BasicButton
-								style={{ flex: 1, backgroundColor: "tomato" }}
-								onClick={() => {
-									console.log("다시 투표");
-								}}>
+								style={{ flex: 1, backgroundColor: "tomato", color: "white" }}
+								onClick={() => setSelectItem({})}>
 								다시
 							</BasicButton>
 							<BasicButton
-								style={{ flex: 1, backgroundColor: "royalblue" }}
-								onClick={() => {
-									console.log("투표!");
-								}}>
+								style={{
+									flex: 1,
+									backgroundColor: "royalblue",
+									color: "white",
+								}}
+								onClick={() => SubmitVote()}>
 								확인
 							</BasicButton>
 						</div>

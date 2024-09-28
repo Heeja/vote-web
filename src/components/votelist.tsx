@@ -171,31 +171,37 @@ export default function Votelist() {
 					<TableItem $flex={3}>CreateDate</TableItem>
 				</TableHeader>
 				<hr />
-				{voteList?.map((list, idx) => {
-					const key = Object.keys(list)[0];
-					const fireBaseTime = new Date(
-						list[key].createTime.seconds * 1000 +
-							list[key].createTime.nanoseconds / 1000000
-					);
-					const date = TransformDateString(fireBaseTime);
-					return (
-						<VoteBox
-							key={idx}
-							onClick={() =>
-								navigate(`/vote/${key}?anony=${list[key].anonyOn}`)
-							}
-							id={key}
-							data-idx={idx.toString()}>
-							<TableItem $flex={1}>{idx + 1}</TableItem>
-							<TableItem $flex={5}>{list[key].title}</TableItem>
-							<TableItem $flex={2}>{list[key].anonyOn ? "Y" : "N"}</TableItem>
-							{/* <TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
+				{voteList
+					?.sort((a, b) => {
+						const key1 = Object.keys(a)[0];
+						const key2 = Object.keys(b)[0];
+						return b[key2].createTime.seconds - a[key1].createTime.seconds;
+					})
+					.map((list, idx) => {
+						const key = Object.keys(list)[0];
+						const fireBaseTime = new Date(
+							list[key].createTime.seconds * 1000 +
+								list[key].createTime.nanoseconds / 1000000
+						);
+						const date = TransformDateString(fireBaseTime);
+						return (
+							<VoteBox
+								key={idx}
+								onClick={() =>
+									navigate(`/vote/${key}?anony=${list[key].anonyOn}`)
+								}
+								id={key}
+								data-idx={idx.toString()}>
+								<TableItem $flex={1}>{idx + 1}</TableItem>
+								<TableItem $flex={5}>{list[key].title}</TableItem>
+								<TableItem $flex={2}>{list[key].anonyOn ? "Y" : "N"}</TableItem>
+								{/* <TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
 							<TableItem $flex={2}>{list[key].limit}</TableItem>
 							<TableItem $flex={3}>{list[key].location ? "Y" : "-"}</TableItem> */}
-							<TableItem $flex={3}>{date}</TableItem>
-						</VoteBox>
-					);
-				})}
+								<TableItem $flex={3}>{date}</TableItem>
+							</VoteBox>
+						);
+					})}
 			</TableBox>
 		</>
 	);

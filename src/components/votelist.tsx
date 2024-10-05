@@ -188,7 +188,9 @@ export default function Votelist() {
 							<VoteBox
 								key={idx}
 								onClick={() =>
-									navigate(`/vote/${key}?anony=${list[key].anonyOn}`)
+									navigate(`/vote/${key}?anony=${list[key].anonyOn}`, {
+										state: { anony: list[key].anonyOn },
+									})
 								}
 								id={key}
 								data-idx={idx.toString()}>

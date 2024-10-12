@@ -100,22 +100,6 @@ export default function Votelist() {
 	const userUid = firebaseSessionStorage().uid;
 
 	// fucntions
-	const onClickNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
-		const { id } = e.currentTarget; // dataset
-
-		// 투표하기로 이동
-		navigate(`/vote/${id}`);
-
-		// Todo: 디자인 변경으로 수정 페이지 수정 필요!
-		// if (dataset.idx) {
-		// 	voteList &&
-		// 		navigate(id, {
-		// 			state: { voteInfo: voteList[parseInt(dataset.idx)][id] },
-		// 		});
-		// }
-		return;
-	};
-
 	useEffect(() => {
 		async function responseData() {
 			setVoteList([]); // VoteList가 전체를 불러오기 때문에 기존 list는 초기화 후 다시 할당한다.
@@ -140,14 +124,6 @@ export default function Votelist() {
 				userUid: userUid,
 				collectionName: "publicVote",
 			}).then((res) => {
-				// const resKeyList = res.filter((item) => {
-				// 	const key = Object.keys(item)[0];
-				// 	if (keyList.find((listKey) => listKey === key)) {
-				// 		return false;
-				// 	} else {
-				// 		return true;
-				// 	}
-				// });
 				setVoteList((prev) => [...prev, ...res]);
 			});
 		}
@@ -188,8 +164,12 @@ export default function Votelist() {
 							<VoteBox
 								key={idx}
 								onClick={() =>
-									navigate(`/vote/${key}?anony=${list[key].anonyOn}`, {
-										state: { anony: list[key].anonyOn },
+									// todo: 투표 수정 페이지 이동으로 수정!
+									// navigate(`/vote/${key}?anony=${list[key].anonyOn}`, {
+									// 	state: { anony: list[key].anonyOn },
+									// })
+									navigate(`${key}?anony=${list[key].anonyOn}`, {
+										state: { id: key, anony: list[key].anonyOn },
 									})
 								}
 								id={key}

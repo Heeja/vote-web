@@ -68,30 +68,18 @@ const ModalBody = styled.div`
 
 interface IProps {
 	title: string;
-	isVisible: boolean;
 	onClose: () => void;
 	children: React.ReactNode;
 }
 
-const Modal = ({ title, isVisible, onClose, children }: IProps) => {
-	const [, setIsModalOpen] = useState(isVisible);
-
-	useEffect(() => {
-		setIsModalOpen(isVisible);
-	}, [isVisible]);
-
-	const handleClose = () => {
-		setIsModalOpen(false);
-		onClose();
-	};
-
+const Modal = ({ title, onClose, children }: IProps) => {
 	return (
 		<ModalContatiner>
-			<ModalBackDrop onClick={handleClose}></ModalBackDrop>
+			<ModalBackDrop onClick={onClose}></ModalBackDrop>
 			<ModalContent>
 				<ModalHeader>
 					<ModalTitle>{title}</ModalTitle>
-					<ModalCloseButton onClick={handleClose}>&times;</ModalCloseButton>
+					<ModalCloseButton onClick={onClose}>&times;</ModalCloseButton>
 				</ModalHeader>
 				<ModalBody>{children}</ModalBody>
 			</ModalContent>

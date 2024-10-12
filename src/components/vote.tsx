@@ -5,7 +5,6 @@ import {
 	getDocs,
 	query,
 	runTransaction,
-	Timestamp,
 	where,
 } from "firebase/firestore";
 import { database } from "../routes/firebase";
@@ -17,6 +16,7 @@ import {
 	CenterFlex,
 	Flex,
 } from "../common/basicStyled";
+import { IVoteData, IVoteItems } from "../common/voteTypes";
 
 // styled components
 // const Item = styled.div`
@@ -42,23 +42,13 @@ const ItemName = styled.div`
 `;
 
 // type interface
-interface IItems {
-	[key: string]: number | string;
-	score: number;
-	itemName: string;
-}
-interface IVoteData {
-	anonyOn: boolean;
-	createTime: Timestamp;
-	createUser: string;
-	doubleOn: boolean;
-	secretBallot: boolean;
-	items: IItems[];
-	limit: number;
-	location: string;
-	title: string;
-}
 
+/**
+ * 투표 페이지
+ * @description 링크를 통해 투표 페이지 접속. 공개 여부를 가지고 접속 필터
+ * @param id 받아올 투표 ID
+ * @param anony 비공개 | 공개 투표 여부 체크
+ */
 export default function Vote() {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -67,7 +57,7 @@ export default function Vote() {
 	const [state, setState] = useState(false);
 	const [voteData, setVoteData] = useState<IVoteData[]>([]);
 
-	const [selectItem, setSelectItem] = useState<IItems>({
+	const [selectItem, setSelectItem] = useState<IVoteItems>({
 		itemName: "",
 		score: 0,
 	});

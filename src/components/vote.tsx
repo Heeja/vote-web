@@ -51,10 +51,14 @@ const ItemName = styled.div`
  */
 export default function Vote() {
 	const navigate = useNavigate();
+
 	const location = useLocation();
-	const { anony } = location.state;
+	const paramsURL = new URLSearchParams(location.search);
+	const anony = paramsURL.get("anony");
+
 	const { id } = useParams();
 	const [state, setState] = useState(false);
+	const [stateMessage, setStateMessage] = useState("로딩중...");
 	const [voteData, setVoteData] = useState<IVoteData[]>([]);
 
 	const [selectItem, setSelectItem] = useState<IVoteItems>({
@@ -71,7 +75,9 @@ export default function Vote() {
 			);
 			const collectionWhere = where("__name__", "==", id);
 			const fireQuery = query(queryCollection, collectionWhere);
-			const data = await getDocs(fireQuery);
+			const data = await getDocs(fireQuery).catch((err) => {
+				throw err;
+			});
 
 			if (data.empty) {
 				console.log("data.empty", data.empty);
@@ -81,8 +87,9 @@ export default function Vote() {
 			data.forEach((doc) => {
 				setVoteData([doc.data() as IVoteData]);
 			});
+			setState(true);
 		} catch (error) {
-			console.log(error);
+			setStateMessage(error as string);
 			return error;
 		}
 	};
@@ -119,12 +126,7 @@ export default function Vote() {
 	useEffect(() => {
 		const readVoteData = () => {
 			if (voteData) {
-				getVoteInfo()
-					.then(() => setState(true))
-					.catch((err) => {
-						setState(false);
-						console.log(err);
-					});
+				getVoteInfo();
 			}
 		};
 		return () => readVoteData();
@@ -236,9 +238,7 @@ export default function Vote() {
 					);
 				})
 			) : (
-				<div>
-					<div>로딩중 ...</div>
-				</div>
+				<div>{stateMessage}</div>
 			)}
 		</>
 	);

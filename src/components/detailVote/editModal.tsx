@@ -90,6 +90,7 @@ export default function VoteEditModal({
 							value={item.itemName}
 							disabled={enableEditItems}
 							onChange={(e) => {
+								// todo: 값이 변경될 떄 커서 사라지는 문제.. Modal...
 								const updatedItems = editValues.items.map((item, i) =>
 									i === index ? { ...item, itemName: e.target.value } : item
 								);

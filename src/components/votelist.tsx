@@ -30,12 +30,19 @@ const TableBox = styled.div`
 		margin: 0.2rem 0;
 	}
 `;
-
 const VoteBox = styled.div`
 	display: flex;
 	justify-content: space-between;
-	align-items: stretch;
+	align-items: center;
+	width: 100%;
+`;
 
+const VoteInfoBox = styled.div<{ $flex: number }>`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	flex: ${(props) => props.$flex};
 	width: 100%;
 	text-align: center;
 	font-size: 0.8rem;
@@ -66,6 +73,13 @@ const TableItem = styled.div<{ $flex: number }>`
 	width: "100%";
 	padding: "0.2rem";
 	overflow: "clip";
+	border: "0.1rem solid #fff";
+`;
+const ShareBtn = styled.button`
+	font-size: x-small;
+	width: 100%;
+	height: 1.5rem;
+	border-radius: 1rem;
 `;
 
 // type interface
@@ -139,12 +153,13 @@ export default function Votelist() {
 			<TableBox>
 				<TableHeader>
 					<TableItem $flex={1}>No.</TableItem>
-					<TableItem $flex={5}>Title</TableItem>
-					<TableItem $flex={2}>Anonym</TableItem>
+					<TableItem $flex={4}>Title</TableItem>
+					<TableItem $flex={2}>Anony</TableItem>
 					{/* <TableItem $flex={2}>Duple</TableItem>
 					<TableItem $flex={2}>limit</TableItem>
 					<TableItem $flex={3}>location</TableItem> */}
 					<TableItem $flex={3}>CreateDate</TableItem>
+					<TableItem $flex={2}>Share</TableItem>
 				</TableHeader>
 				<hr />
 				{voteList
@@ -161,26 +176,49 @@ export default function Votelist() {
 						);
 						const date = TransformDateString(fireBaseTime);
 						return (
-							<VoteBox
-								key={idx}
-								onClick={() =>
-									// todo: 투표 수정 페이지 이동으로 수정!
-									// navigate(`/vote/${key}?anony=${list[key].anonyOn}`, {
-									// 	state: { anony: list[key].anonyOn },
-									// })
-									navigate(`${key}?anony=${list[key].anonyOn}`, {
-										state: { id: key, anony: list[key].anonyOn },
-									})
-								}
-								id={key}
-								data-idx={idx.toString()}>
-								<TableItem $flex={1}>{idx + 1}</TableItem>
-								<TableItem $flex={5}>{list[key].title}</TableItem>
-								<TableItem $flex={2}>{list[key].anonyOn ? "Y" : "N"}</TableItem>
-								{/* <TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
+							<VoteBox key={idx}>
+								<VoteInfoBox
+									$flex={6}
+									onClick={() =>
+										// todo: 투표 수정 페이지 이동으로 수정!
+										// navigate(`/vote/${key}?anony=${list[key].anonyOn}`, {
+										// 	state: { anony: list[key].anonyOn },
+										// })
+										navigate(`${key}?anony=${list[key].anonyOn}`, {
+											state: { id: key, anony: list[key].anonyOn },
+										})
+									}
+									id={key}
+									data-idx={idx.toString()}>
+									<TableItem $flex={1}>{idx + 1}</TableItem>
+									<TableItem $flex={4}>{list[key].title}</TableItem>
+									<TableItem $flex={2}>
+										{list[key].anonyOn ? "Y" : "N"}
+									</TableItem>
+									{/* <TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
 							<TableItem $flex={2}>{list[key].limit}</TableItem>
 							<TableItem $flex={3}>{list[key].location ? "Y" : "-"}</TableItem> */}
-								<TableItem $flex={3}>{date}</TableItem>
+									<TableItem $flex={3}>{date}</TableItem>
+								</VoteInfoBox>
+
+								<TableItem $flex={1}>
+									<ShareBtn
+										onClick={() => {
+											navigator.clipboard
+												.writeText(
+													`${window.location.origin}/vote/${key}?anony=${list[key].anonyOn}`
+												)
+												.then(() => alert("주소가 복사되었습니다."))
+												.catch((err) => alert(err));
+											// window.navigator.share({
+											// 	title: "투표 공유",
+											// 	text: list[key].title,
+											// 	url: `${window.location.origin}/vote/${key}?anony=${list[key].anonyOn}`,
+											// });
+										}}>
+										공유
+									</ShareBtn>
+								</TableItem>
 							</VoteBox>
 						);
 					})}

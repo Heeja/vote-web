@@ -64,6 +64,9 @@ export default function VoteEditModal({
 	const headerList = ["항목"];
 
 	// functions
+	/**
+	 * 수정 완료하기
+	 */
 	function SubmitChangeVoteInfo() {
 		const editConfirm = confirm("수정하기");
 		if (editConfirm) console.log("수정하기 요청!");
@@ -98,16 +101,15 @@ export default function VoteEditModal({
 			<HeaderBody headerList={headerList} onSortResult={() => {}} />
 			{/* <ModalBody data={editValues.items} changeFunc={() => {}} /> */}
 			<EditList>
-				{editValues.items.map((item: IVoteItems, index) => {
+				{voteData.items.map((item: IVoteItems, index) => {
 					return (
 						<EditItem key={item.itemName + index}>
 							<span>항목 {index + 1}</span>
 							<input
 								type="text"
-								value={item.itemName}
+								value={editValues.items[index].itemName}
 								disabled={enableEditItems}
 								onChange={(e) => {
-									// todo: 값이 변경될 떄 커서 사라지는 문제.. Modal...
 									const updatedItems = editValues.items.map((item, i) =>
 										i === index ? { ...item, itemName: e.target.value } : item
 									);

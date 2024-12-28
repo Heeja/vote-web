@@ -1,10 +1,4 @@
-import {
-	collection,
-	DocumentData,
-	getDocs,
-	query,
-	where,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -13,7 +7,7 @@ import Modal from "../components/Modal";
 import VoteEditModal from "../components/detailVote/editModal";
 import ResultBody from "../components/detailVote/resultBody";
 import HeaderBody from "../components/detailVote/headerBody";
-import TransformDateString from "../util/transformDateString";
+// import TransformDateString from "../util/transformDateString";
 import { IVoteData } from "../common/voteTypes";
 import { database } from "../routes/firebase";
 

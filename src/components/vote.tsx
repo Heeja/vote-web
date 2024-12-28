@@ -67,6 +67,10 @@ export default function Vote() {
 	});
 
 	// Functions
+
+	/**
+	 * id에 해당하는 투표 정보를 가져온다.
+	 */
 	const getVoteInfo = async () => {
 		try {
 			const queryCollection = collection(
@@ -81,6 +85,7 @@ export default function Vote() {
 
 			if (data.empty) {
 				console.log("data.empty", data.empty);
+				setStateMessage("조건에 맞는 문서를 찾을 수 없습니다.");
 				return { success: false, error: "조건에 맞는 문서가 없습니다." };
 			}
 
@@ -89,11 +94,15 @@ export default function Vote() {
 			});
 			setState(true);
 		} catch (error) {
-			setStateMessage(error as string);
-			return error;
+			setState(false);
+			setStateMessage("정보 조회에 실패하였습니다.");
+			return;
 		}
 	};
 
+	/**
+	 * 투표 정보 업데이트
+	 */
 	function SubmitVote() {
 		try {
 			if (Object.entries(selectItem).length < 1) throw new Error("빈 값");
@@ -122,15 +131,10 @@ export default function Vote() {
 			console.log("업데이트 실패(Transaction failed): ", e);
 		}
 	}
-
 	useEffect(() => {
-		const readVoteData = () => {
-			if (voteData) {
-				getVoteInfo();
-			}
-		};
-		return () => readVoteData();
+		getVoteInfo();
 	}, []);
+
 	return (
 		<>
 			<CenterFlex

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const ModalContatiner = styled.div`
@@ -25,19 +24,25 @@ const ModalBackDrop = styled.div`
 
 const ModalContent = styled.div`
 	position: relative;
-	width: 500px;
-	height: 500px;
+	width: 100%;
+	height: 100%;
+	max-width: 360px;
+	max-height: 735px;
 	background-color: rgba(0, 0, 0, 0.5);
 	border-radius: 10px;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+	padding: 2rem;
+	margin: 1rem;
 `;
 
 const ModalHeader = styled.div`
+	width: 100%;
 	display: flex;
-	justify-content: space-between;
+	justify-content: center;
 	align-items: center;
-	padding: 1rem;
+	padding: 2rem;
 	border-bottom: 1px solid #ddd;
+	position: relative;
 `;
 
 const ModalTitle = styled.span`
@@ -46,8 +51,13 @@ const ModalTitle = styled.span`
 `;
 
 const ModalCloseButton = styled.div`
-	width: 30px;
-	height: 30px;
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	right: 1rem;
+	width: 1.5rem;
+	height: 1.5rem;
 	border: none;
 	background-color: transparent;
 	cursor: pointer;
@@ -61,9 +71,8 @@ const ModalCloseButton = styled.div`
 `;
 
 const ModalBody = styled.div`
-	height: 100%;
 	width: 100%;
-	padding: 10px;
+	padding: 0.6rem;
 `;
 
 interface IProps {

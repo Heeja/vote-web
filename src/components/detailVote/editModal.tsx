@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import HeaderBody from "./headerBody";
-import ModalBody from "./modalBody";
+
 import { BasicButton, BasicFlex } from "../../common/basicStyled";
 import { IVoteItems } from "../../common/voteTypes";
 
@@ -17,7 +17,21 @@ const TitleInput = styled.input`
 	border: none;
 	width: 60%;
 	text-align: center;
-	font-size: 1.3rem;
+	font-size: 1.2rem;
+`;
+const EditList = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	margin: 1rem 0;
+`;
+
+const EditItem = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const ButtonBox = styled.div`
@@ -25,6 +39,7 @@ const ButtonBox = styled.div`
 	justify-content: center;
 	align-items: center;
 	gap: 2rem;
+	padding: 0.5rem 0;
 `;
 
 interface IEditData {
@@ -82,27 +97,30 @@ export default function VoteEditModal({
 			<hr />
 			<HeaderBody headerList={headerList} onSortResult={() => {}} />
 			{/* <ModalBody data={editValues.items} changeFunc={() => {}} /> */}
-			{editValues.items.map((item: IVoteItems, index) => {
-				return (
-					<div key={item.itemName + index}>
-						<input
-							type="text"
-							value={item.itemName}
-							disabled={enableEditItems}
-							onChange={(e) => {
-								// todo: 값이 변경될 떄 커서 사라지는 문제.. Modal...
-								const updatedItems = editValues.items.map((item, i) =>
-									i === index ? { ...item, itemName: e.target.value } : item
-								);
-								setEditValues((prev) => ({
-									...prev,
-									items: updatedItems,
-								}));
-							}}
-						/>
-					</div>
-				);
-			})}
+			<EditList>
+				{editValues.items.map((item: IVoteItems, index) => {
+					return (
+						<EditItem key={item.itemName + index}>
+							<span>항목 {index + 1}</span>
+							<input
+								type="text"
+								value={item.itemName}
+								disabled={enableEditItems}
+								onChange={(e) => {
+									// todo: 값이 변경될 떄 커서 사라지는 문제.. Modal...
+									const updatedItems = editValues.items.map((item, i) =>
+										i === index ? { ...item, itemName: e.target.value } : item
+									);
+									setEditValues((prev) => ({
+										...prev,
+										items: updatedItems,
+									}));
+								}}
+							/>
+						</EditItem>
+					);
+				})}
+			</EditList>
 			<ButtonBox>
 				<BasicButton onClick={onClose}>돌아가기</BasicButton>
 				<BasicButton onClick={SubmitChangeVoteInfo}>수정하기</BasicButton>

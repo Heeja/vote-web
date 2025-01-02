@@ -30,12 +30,19 @@ const TableBox = styled.div`
 		margin: 0.2rem 0;
 	}
 `;
-
 const VoteBox = styled.div`
 	display: flex;
 	justify-content: space-between;
-	align-items: stretch;
+	align-items: center;
+	width: 100%;
+`;
 
+const VoteInfoBox = styled.div<{ $flex: number }>`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	flex: ${(props) => props.$flex};
 	width: 100%;
 	text-align: center;
 	font-size: 0.8rem;
@@ -66,6 +73,13 @@ const TableItem = styled.div<{ $flex: number }>`
 	width: "100%";
 	padding: "0.2rem";
 	overflow: "clip";
+	border: "0.1rem solid #fff";
+`;
+const ShareBtn = styled.button`
+	font-size: x-small;
+	width: 100%;
+	height: 1.5rem;
+	border-radius: 1rem;
 `;
 
 // type interface
@@ -74,7 +88,7 @@ interface IVotelist {
 }
 [];
 // firestore api
-async function VoteList({
+async function FirestroeVoteLists({
 	userUid,
 	collectionName,
 }: {
@@ -100,26 +114,10 @@ export default function Votelist() {
 	const userUid = firebaseSessionStorage().uid;
 
 	// fucntions
-	const onClickNavigate = (e: React.MouseEvent<HTMLDivElement>) => {
-		const { id } = e.currentTarget; // dataset
-
-		// 투표하기로 이동
-		navigate(`/vote/${id}`);
-
-		// Todo: 디자인 변경으로 수정 페이지 수정 필요!
-		// if (dataset.idx) {
-		// 	voteList &&
-		// 		navigate(id, {
-		// 			state: { voteInfo: voteList[parseInt(dataset.idx)][id] },
-		// 		});
-		// }
-		return;
-	};
-
 	useEffect(() => {
 		async function responseData() {
 			setVoteList([]); // VoteList가 전체를 불러오기 때문에 기존 list는 초기화 후 다시 할당한다.
-			await VoteList({
+			await FirestroeVoteLists({
 				userUid: userUid,
 				collectionName: "privateVote",
 			}).then((res) => {
@@ -136,18 +134,10 @@ export default function Votelist() {
 
 				setVoteList((prev) => [...prev, ...res]);
 			});
-			await VoteList({
+			await FirestroeVoteLists({
 				userUid: userUid,
 				collectionName: "publicVote",
 			}).then((res) => {
-				// const resKeyList = res.filter((item) => {
-				// 	const key = Object.keys(item)[0];
-				// 	if (keyList.find((listKey) => listKey === key)) {
-				// 		return false;
-				// 	} else {
-				// 		return true;
-				// 	}
-				// });
 				setVoteList((prev) => [...prev, ...res]);
 			});
 		}
@@ -163,37 +153,75 @@ export default function Votelist() {
 			<TableBox>
 				<TableHeader>
 					<TableItem $flex={1}>No.</TableItem>
-					<TableItem $flex={5}>Title</TableItem>
-					<TableItem $flex={2}>Anonym</TableItem>
+					<TableItem $flex={4}>Title</TableItem>
+					<TableItem $flex={2}>Anony</TableItem>
 					{/* <TableItem $flex={2}>Duple</TableItem>
 					<TableItem $flex={2}>limit</TableItem>
 					<TableItem $flex={3}>location</TableItem> */}
 					<TableItem $flex={3}>CreateDate</TableItem>
+					<TableItem $flex={2}>Share</TableItem>
 				</TableHeader>
 				<hr />
-				{voteList?.map((list, idx) => {
-					const key = Object.keys(list)[0];
-					const fireBaseTime = new Date(
-						list[key].createTime.seconds * 1000 +
-							list[key].createTime.nanoseconds / 1000000
-					);
-					const date = TransformDateString(fireBaseTime);
-					return (
-						<VoteBox
-							key={idx}
-							onClick={onClickNavigate}
-							id={key}
-							data-idx={idx.toString()}>
-							<TableItem $flex={1}>{idx + 1}</TableItem>
-							<TableItem $flex={5}>{list[key].title}</TableItem>
-							<TableItem $flex={2}>{list[key].anonyOn ? "Y" : "N"}</TableItem>
-							{/* <TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
+				{voteList
+					?.sort((a, b) => {
+						const key1 = Object.keys(a)[0];
+						const key2 = Object.keys(b)[0];
+						return b[key2].createTime.seconds - a[key1].createTime.seconds;
+					})
+					.map((list, idx) => {
+						const key = Object.keys(list)[0];
+						const fireBaseTime = new Date(
+							list[key].createTime.seconds * 1000 +
+								list[key].createTime.nanoseconds / 1000000
+						);
+						const date = TransformDateString(fireBaseTime);
+						return (
+							<VoteBox key={idx}>
+								<VoteInfoBox
+									$flex={6}
+									onClick={() =>
+										// todo: 투표 수정 페이지 이동으로 수정!
+										// navigate(`/vote/${key}?anony=${list[key].anonyOn}`, {
+										// 	state: { anony: list[key].anonyOn },
+										// })
+										navigate(`${key}?anony=${list[key].anonyOn}`, {
+											state: { id: key, anony: list[key].anonyOn },
+										})
+									}
+									id={key}
+									data-idx={idx.toString()}>
+									<TableItem $flex={1}>{idx + 1}</TableItem>
+									<TableItem $flex={4}>{list[key].title}</TableItem>
+									<TableItem $flex={2}>
+										{list[key].anonyOn ? "Y" : "N"}
+									</TableItem>
+									{/* <TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
 							<TableItem $flex={2}>{list[key].limit}</TableItem>
 							<TableItem $flex={3}>{list[key].location ? "Y" : "-"}</TableItem> */}
-							<TableItem $flex={3}>{date}</TableItem>
-						</VoteBox>
-					);
-				})}
+									<TableItem $flex={3}>{date}</TableItem>
+								</VoteInfoBox>
+
+								<TableItem $flex={1}>
+									<ShareBtn
+										onClick={() => {
+											navigator.clipboard
+												.writeText(
+													`${window.location.origin}/vote/${key}?anony=${list[key].anonyOn}`
+												)
+												.then(() => alert("주소가 복사되었습니다."))
+												.catch((err) => alert(err));
+											// window.navigator.share({
+											// 	title: "투표 공유",
+											// 	text: list[key].title,
+											// 	url: `${window.location.origin}/vote/${key}?anony=${list[key].anonyOn}`,
+											// });
+										}}>
+										공유
+									</ShareBtn>
+								</TableItem>
+							</VoteBox>
+						);
+					})}
 			</TableBox>
 		</>
 	);

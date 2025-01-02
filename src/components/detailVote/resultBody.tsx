@@ -3,7 +3,7 @@ import { IVoteItems } from "../../common/voteTypes";
 
 const Flex = styled.div<{ $type?: string }>`
 	display: flex;
-	width: 80%;
+	width: 100%;
 	justify-content: space-around;
 	align-items: stretch;
 	background-color: ${(props) => props.$type === "header" && "#ff999990"};
@@ -21,14 +21,14 @@ const FlexItem = styled.div<{ $type?: string }>`
 export default function ResultBody({ data }: { data: IVoteItems[] }) {
 	const totalCount = data.reduce((before, result) => before + result.score, 0);
 
-	return data.map((item, idx) => {
+	return data?.map((item, idx) => {
 		const percent = item.score === 0 ? 0 : (item.score / totalCount) * 100;
 		return (
 			<Flex key={"Body-" + idx}>
 				<FlexItem>{idx + 1}</FlexItem>
 				<FlexItem>{item.itemName}</FlexItem>
 				<FlexItem>{item.score}</FlexItem>
-				<FlexItem>{percent}%</FlexItem>
+				<FlexItem>{percent.toFixed(1)}%</FlexItem>
 			</Flex>
 		);
 	});

@@ -1,14 +1,9 @@
-import { DocumentData } from "firebase/firestore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+
 import HeaderBody from "./headerBody";
-import ModalBody from "./modalBody";
-import {
-	BasicButton,
-	BasicColumnFlex,
-	BasicFlex,
-	WarningText,
-} from "../../common/basicStyled";
+
+import { BasicButton, BasicFlex } from "../../common/basicStyled";
 import { IVoteItems } from "../../common/voteTypes";
 
 const EditModalBox = styled.div`
@@ -22,7 +17,21 @@ const TitleInput = styled.input`
 	border: none;
 	width: 60%;
 	text-align: center;
-	font-size: 1.3rem;
+	font-size: 1.2rem;
+`;
+const EditList = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	margin: 1rem 0;
+`;
+
+const EditItem = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const ButtonBox = styled.div`
@@ -30,81 +39,90 @@ const ButtonBox = styled.div`
 	justify-content: center;
 	align-items: center;
 	gap: 2rem;
+	padding: 0.5rem 0;
 `;
 
+interface IEditData {
+	title: string;
+	items: IVoteItems[];
+}
+
 export default function VoteEditModal({
-	voteInfo,
-	setVoteInfo,
+	voteData,
 	onClose,
 }: {
-	voteInfo: DocumentData;
-	setVoteInfo: React.Dispatch<React.SetStateAction<DocumentData | undefined>>;
+	voteData: IEditData;
 	onClose: () => void;
 }) {
-	// const [editVoteInfo, setEditVoteInfo] = useState<DocumentData>(voteInfo);
+	const [editValues, setEditValues] = useState<IEditData>({
+		title: "",
+		items: [],
+	});
+	const [loading, setLoading] = useState(false);
+	const [enableEditItems, setEnableEditItems] = useState(false);
 
-	console.log(voteInfo);
-	const headerList = ["항목", "추가/제거"];
-	const votedCheck =
-		voteInfo.items &&
-		Object.values(voteInfo.items).find((value) => (value as number) > 0);
+	const headerList = ["항목"];
 
 	// functions
-	function InputChange(e: React.ChangeEvent<HTMLInputElement>) {
-		const { value } = e.currentTarget;
-		setVoteInfo((prev) => ({ ...prev, title: value }));
+	/**
+	 * 수정 완료하기
+	 */
+	function SubmitChangeVoteInfo() {
+		const editConfirm = confirm("수정하기");
+		if (editConfirm) console.log("수정하기 요청!");
 		return;
 	}
 
-	function SubmitChangeVoteInfo() {
-		console.log("수정하기 요청");
-		return;
-	}
-	return votedCheck ? (
-		<BasicColumnFlex>
-			<BasicFlex>
-				<h3>투표 제목</h3>
-				<h2>{voteInfo.title}</h2>
-			</BasicFlex>
-			<hr />
-			<WarningText>투표가 진행되어 수정할 수 없습니다.</WarningText>
-			<HeaderBody headerList={headerList} onSortResult={() => {}} />
-			{voteInfo.items && (
-				<ModalBody
-					data={voteInfo.items}
-					changeFunc={() => {}}
-					disabled={true}
-				/>
-			)}
-		</BasicColumnFlex>
+	useEffect(() => {
+		if (voteData) {
+			setEditValues({ title: voteData.title, items: [...voteData.items] });
+			setLoading(true);
+			voteData.items.forEach(
+				(item) => item.score > 0 && setEnableEditItems(true)
+			);
+		}
+	}, []);
+
+	return !loading ? (
+		<div>Loading....</div>
 	) : (
 		<EditModalBox>
 			<BasicFlex>
 				<h3>투표 제목</h3>
-				<TitleInput type="text" value={voteInfo.title} onChange={InputChange} />
+				<TitleInput
+					type="text"
+					value={editValues.title}
+					onChange={(e) =>
+						setEditValues((prev) => ({ ...prev, title: e.target.value }))
+					}
+				/>
 			</BasicFlex>
 			<hr />
 			<HeaderBody headerList={headerList} onSortResult={() => {}} />
-
-			{voteInfo.items &&
-				// <ModalBody data={voteInfo.items} changeFunc={setvoteInfo} />
-				voteInfo.items.map((item: IVoteItems, index) => {
+			{/* <ModalBody data={editValues.items} changeFunc={() => {}} /> */}
+			<EditList>
+				{voteData.items.map((item: IVoteItems, index) => {
 					return (
-						<div>
+						<EditItem key={item.itemName + index}>
+							<span>항목 {index + 1}</span>
 							<input
 								type="text"
-								value={item.itemName}
-								disabled={false}
-								onChange={() => {
-									// todo: voteinfo를 바로 받아서 수정하는 부분 렌더링 효율 체크
-									// 	itemName만 변경하는 로직 완성
-									// setVoteInfo(prev => ({...prev, prev.items[idx].itemName}))
+								value={editValues.items[index].itemName}
+								disabled={enableEditItems}
+								onChange={(e) => {
+									const updatedItems = editValues.items.map((item, i) =>
+										i === index ? { ...item, itemName: e.target.value } : item
+									);
+									setEditValues((prev) => ({
+										...prev,
+										items: updatedItems,
+									}));
 								}}
 							/>
-						</div>
+						</EditItem>
 					);
 				})}
-
+			</EditList>
 			<ButtonBox>
 				<BasicButton onClick={onClose}>돌아가기</BasicButton>
 				<BasicButton onClick={SubmitChangeVoteInfo}>수정하기</BasicButton>

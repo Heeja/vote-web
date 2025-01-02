@@ -25,3 +25,6 @@ dist-ssr
 
 # API Key
 api/*
+
+# pem
+*.pem

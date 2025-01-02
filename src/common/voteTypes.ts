@@ -15,4 +15,6 @@ export interface IVoteData {
 	limit: number;
 	location: string;
 	title: string;
+	completed: string[];
+	members: string[];
 }

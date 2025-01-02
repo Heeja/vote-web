@@ -10,6 +10,7 @@ import HeaderBody from "../components/detailVote/headerBody";
 // import TransformDateString from "../util/transformDateString";
 import { IVoteData } from "../common/voteTypes";
 import { database } from "../routes/firebase";
+import MemberList from "./detailVote/memberList";
 
 // import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
 // import { ReactComponent as SortDown } from "../asset/svg/sortDown.svg";
@@ -54,9 +55,19 @@ const ButtonBox = styled.div`
 `;
 const Button = styled.button<{ disabled?: boolean }>`
 	padding: 0.3rem 1rem;
-	border: 0.08rem solid snow;
+	/* border: 0.08rem solid snow; */
 	font-size: 0.9rem;
 	color: ${(props) => (props.disabled ? "white" : "black")};
+	cursor: pointer;
+	&:hover {
+		background-color: #f8ffa4;
+	}
+`;
+
+const ModalListBox = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
 `;
 
 export default function Detailvote() {
@@ -66,6 +77,7 @@ export default function Detailvote() {
 	const [voteInfo, setVoteInfo] = useState<IVoteData>();
 	const [enableEdit, setEnableEdit] = useState(false);
 	const [editModal, setEditModal] = useState(false);
+	const [memberView, setMemberView] = useState(false);
 
 	const headerList = ["순서", "항목", "투표수", "점유율"];
 
@@ -101,6 +113,7 @@ export default function Detailvote() {
 			return error;
 		}
 	};
+	console.log(voteInfo);
 
 	useEffect(() => {
 		const readVoteData = () => {
@@ -132,6 +145,22 @@ export default function Detailvote() {
 					/>
 				</Modal>
 			)}
+			{memberView && (
+				<Modal title={"투표 멤버"} onClose={() => setMemberView(false)}>
+					<ModalListBox>
+						{voteInfo?.members.map((member, idx) => {
+							const completed = voteInfo.completed.includes(member);
+							return (
+								<MemberList
+									memberName={member}
+									seq={idx}
+									completed={completed}
+								/>
+							);
+						})}
+					</ModalListBox>
+				</Modal>
+			)}
 			{dataState && voteInfo ? (
 				<>
 					<Title>{voteInfo.title}</Title>
@@ -142,6 +171,9 @@ export default function Detailvote() {
 						<HeaderBody headerList={headerList} onSortResult={onSortResult} />
 						<ResultBody data={voteInfo.items} />
 					</Body>
+					<Button onClick={() => setMemberView((prev) => !prev)}>
+						명단 보기
+					</Button>
 					<ButtonBox>
 						<Button onClick={onGoBack}>뒤로가기</Button>
 						<Button

@@ -15,9 +15,6 @@ export interface IVoteData {
 	limit: number;
 	location: string;
 	title: string;
-}
-
-export interface IVoteDataExtends extends IVoteData {
-	completed: string[];
-	members: string[];
+	completed?: string[];
+	members?: string[];
 }

@@ -16,7 +16,7 @@ import {
 	CenterFlex,
 	Flex,
 } from "../common/basicStyled";
-import { IVoteData, IVoteDataExtends, IVoteItems } from "../common/voteTypes";
+import { IVoteData, IVoteItems } from "../common/voteTypes";
 
 // styled components
 // const Item = styled.div`
@@ -40,6 +40,19 @@ const ItemName = styled.div`
 	font-size: 0.9rem;
 	text-align: center;
 `;
+const ButtonBox = styled.div`
+	display: flex;
+	justify-content: center;
+	gap: 1rem;
+	width: 80%;
+`;
+const InputBox = styled.div`
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	gap: 1rem;
+	margin: 0.4rem 0;
+`;
 
 // type interface
 
@@ -59,11 +72,12 @@ export default function Vote() {
 	const { id } = useParams();
 	const [state, setState] = useState(false);
 	const [stateMessage, setStateMessage] = useState("로딩중...");
-	const [voteData, setVoteData] = useState<IVoteData | IVoteDataExtends>();
+	const [voteData, setVoteData] = useState<IVoteData>();
 	const [selectItem, setSelectItem] = useState<IVoteItems>({
 		itemName: "",
 		score: 0,
 	});
+	const [voteMember, setVoteMember] = useState("");
 
 	// Functions
 
@@ -105,7 +119,7 @@ export default function Vote() {
 					};
 					setVoteData(filteredData);
 				} else {
-					setVoteData(doc.data() as IVoteDataExtends);
+					setVoteData(doc.data() as IVoteData);
 				}
 			});
 			setState(true);
@@ -121,34 +135,50 @@ export default function Vote() {
 	 */
 	function SubmitVote() {
 		try {
-			if (Object.entries(selectItem).length < 1) throw new Error("빈 값");
+			if (!selectItem.itemName) throw new Error("빈 값");
+			if (!voteMember) throw new Error("투표자 이름을 입력해주세요");
 
 			if (voteData) {
-				const updateItems = [...voteData.items].map((item) => {
-					if (item.itemName === selectItem.itemName) {
-						return { ...item, score: selectItem.score };
-					}
-					return item;
-				});
-
-				console.log(
-					doc(database, anony ? "publicVote" : "privateVote", id as string)
-				);
-
 				runTransaction(database, async (transaction) => {
-					transaction.update(
-						doc(database, anony ? "publicVote" : "privateVote", id as string),
-						{ items: updateItems }
+					// 트랜잭션 내에서 최신 데이터를 다시 읽어옴
+					const voteRef = doc(
+						database,
+						anony ? "publicVote" : "privateVote",
+						id as string
 					);
+					const currentDoc = await transaction.get(voteRef);
+					const currentData = currentDoc.data() as IVoteData;
+
+					// 이미 투표했는지 확인
+					if (currentData.completed?.includes(voteMember)) {
+						throw new Error("이미 투표하셨습니다!");
+					}
+
+					const updateItems = [...currentData.items].map((item) => {
+						if (item.itemName === selectItem.itemName) {
+							return { ...item, score: item.score + 1 };
+						}
+						return item;
+					});
+					const completed = currentData.completed
+						? [...currentData.completed, voteMember]
+						: [voteMember];
+
+					// 검증이 완료된 후 업데이트
+					transaction.update(voteRef, { items: updateItems, completed });
 				})
-					.then(() => getVoteInfo())
-					.catch((err) => new Error(err));
-				console.log("업데이트 성공!!(Transaction successfully committed!)");
-			} else {
-				throw new Error("투표 정보가 없습니다.");
+					.then(() => {
+						alert("투표가 완료되었습니다!");
+						navigate("/");
+					})
+					.catch((err) => {
+						alert(err.message);
+						console.error("Transaction failed: ", err);
+					});
 			}
 		} catch (e) {
-			console.log("업데이트 실패(Transaction failed): ", e);
+			alert(e instanceof Error ? e.message : "투표 중 오류가 발생했습니다");
+			console.error("투표 실패: ", e);
 		}
 	}
 
@@ -248,13 +278,31 @@ export default function Vote() {
 						);
 					})}
 					<hr />
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "center",
-							gap: "1rem",
-							width: "80%",
-						}}>
+					<ButtonBox>
+						{!anony ? (
+							<BasicButton>개표 보기</BasicButton>
+						) : (
+							<InputBox
+								style={{
+									display: "flex",
+									justifyContent: "space-around",
+									alignItems: "center",
+									gap: "1rem",
+								}}>
+								<div>*투표자:</div>
+								<input
+									type="text"
+									placeholder="이름"
+									value={voteMember}
+									onChange={(e) => {
+										const { value } = e.target;
+										setVoteMember(value);
+									}}
+								/>
+							</InputBox>
+						)}
+					</ButtonBox>
+					<ButtonBox>
 						<BasicButton
 							style={{ flex: 1, backgroundColor: "tomato", color: "white" }}
 							onClick={resetVote}>
@@ -269,7 +317,7 @@ export default function Vote() {
 							onClick={() => SubmitVote()}>
 							확인
 						</BasicButton>
-					</div>
+					</ButtonBox>
 				</BasicColumnFlex>
 			) : (
 				<div>{stateMessage}</div>

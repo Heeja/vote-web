@@ -35,7 +35,9 @@ function Login() {
 		e.preventDefault();
 		setIsLoading(true);
 
+		// Firebase auth에서 Session 사용하기
 		setPersistence(auth, browserSessionPersistence).then(() => {
+			// 인증으로 email, passwd 사용하기
 			signInWithEmailAndPassword(auth, loginData.email, loginData.password)
 				.then()
 				.catch((err) => {

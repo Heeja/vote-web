@@ -1,6 +1,6 @@
 export default function TransformDateString(dateTypeValue: Date) {
 	const year = dateTypeValue.getFullYear().toString();
-	const month = dateTypeValue.getMonth().toString();
+	const month = (dateTypeValue.getMonth() + 1).toString();
 	const date = dateTypeValue.getDate().toString();
 
 	const twodigitMonth = month.length < 2 ? "0" + month : month;

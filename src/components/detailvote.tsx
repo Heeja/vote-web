@@ -8,7 +8,7 @@ import VoteEditModal from "../components/detailVote/editModal";
 import ResultBody from "../components/detailVote/resultBody";
 import HeaderBody from "../components/detailVote/headerBody";
 // import TransformDateString from "../util/transformDateString";
-import { IVoteData } from "../common/voteTypes";
+import { IVoteDataExtends } from "../common/voteTypes";
 import { database } from "../routes/firebase";
 import MemberList from "./detailVote/memberList";
 
@@ -74,7 +74,7 @@ export default function Detailvote() {
 	const navigate = useNavigate();
 	const { state } = useLocation();
 	const [dataState, setDataState] = useState(false);
-	const [voteInfo, setVoteInfo] = useState<IVoteData>();
+	const [voteInfo, setVoteInfo] = useState<IVoteDataExtends>();
 	const [enableEdit, setEnableEdit] = useState(false);
 	const [editModal, setEditModal] = useState(false);
 	const [memberView, setMemberView] = useState(false);
@@ -106,7 +106,7 @@ export default function Detailvote() {
 			}
 
 			data.forEach((doc) => {
-				setVoteInfo(doc.data() as IVoteData);
+				setVoteInfo(doc.data() as IVoteDataExtends);
 			});
 		} catch (error) {
 			console.log(error);

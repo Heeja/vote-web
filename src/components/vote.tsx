@@ -16,7 +16,7 @@ import {
 	CenterFlex,
 	Flex,
 } from "../common/basicStyled";
-import { IVoteData, IVoteItems } from "../common/voteTypes";
+import { IVoteData, IVoteDataExtends, IVoteItems } from "../common/voteTypes";
 
 // styled components
 // const Item = styled.div`
@@ -59,8 +59,7 @@ export default function Vote() {
 	const { id } = useParams();
 	const [state, setState] = useState(false);
 	const [stateMessage, setStateMessage] = useState("로딩중...");
-	const [voteData, setVoteData] = useState<IVoteData[]>([]);
-
+	const [voteData, setVoteData] = useState<IVoteData | IVoteDataExtends>();
 	const [selectItem, setSelectItem] = useState<IVoteItems>({
 		itemName: "",
 		score: 0,
@@ -90,7 +89,24 @@ export default function Vote() {
 			}
 
 			data.forEach((doc) => {
-				setVoteData([doc.data() as IVoteData]);
+				// 공개 투표일 경우 데이터 필터
+				if (anony) {
+					const rawData = doc.data();
+					const filteredData: IVoteData = {
+						title: rawData.title,
+						items: rawData.items,
+						secretBallot: rawData.secretBallot,
+						anonyOn: rawData.anonyOn,
+						createTime: rawData.createTime,
+						createUser: rawData.createUser,
+						doubleOn: rawData.doubleOn,
+						limit: rawData.limit,
+						location: rawData.location,
+					};
+					setVoteData(filteredData);
+				} else {
+					setVoteData(doc.data() as IVoteDataExtends);
+				}
 			});
 			setState(true);
 		} catch (error) {
@@ -107,30 +123,41 @@ export default function Vote() {
 		try {
 			if (Object.entries(selectItem).length < 1) throw new Error("빈 값");
 
-			const updateItems = [...voteData[0].items].map((item) => {
-				if (item.itemName === selectItem.itemName) {
-					return { ...item, score: selectItem.score };
-				}
-				return item;
-			});
+			if (voteData) {
+				const updateItems = [...voteData.items].map((item) => {
+					if (item.itemName === selectItem.itemName) {
+						return { ...item, score: selectItem.score };
+					}
+					return item;
+				});
 
-			console.log(
-				doc(database, anony ? "publicVote" : "privateVote", id as string)
-			);
-
-			runTransaction(database, async (transaction) => {
-				transaction.update(
-					doc(database, anony ? "publicVote" : "privateVote", id as string),
-					{ items: updateItems }
+				console.log(
+					doc(database, anony ? "publicVote" : "privateVote", id as string)
 				);
-			})
-				.then(() => getVoteInfo())
-				.catch((err) => new Error(err));
-			console.log("업데이트 성공!!(Transaction successfully committed!)");
+
+				runTransaction(database, async (transaction) => {
+					transaction.update(
+						doc(database, anony ? "publicVote" : "privateVote", id as string),
+						{ items: updateItems }
+					);
+				})
+					.then(() => getVoteInfo())
+					.catch((err) => new Error(err));
+				console.log("업데이트 성공!!(Transaction successfully committed!)");
+			} else {
+				throw new Error("투표 정보가 없습니다.");
+			}
 		} catch (e) {
 			console.log("업데이트 실패(Transaction failed): ", e);
 		}
 	}
+
+	/**
+	 *
+	 */
+	const resetVote = () => {
+		setSelectItem({ itemName: "", score: 0 });
+	};
 	useEffect(() => {
 		getVoteInfo();
 	}, []);
@@ -152,95 +179,98 @@ export default function Vote() {
 				</button>
 			</CenterFlex>
 			<hr />
-			{state ? (
-				voteData?.map((data) => {
-					return (
-						<BasicColumnFlex key={id + "_" + data.title}>
-							<h1>{data.title}</h1>
-							<div
-								style={{
-									display: "flex",
-									flexDirection: "column",
-									width: "100%",
-								}}>
-								<hr />
-								<Flex>
-									<ItemName
-										style={{ width: !data.secretBallot ? "40%" : "50%" }}>
-										Outcome
-									</ItemName>
-									{!data.secretBallot && (
-										<ItemName style={{ width: "20%" }}>Score</ItemName>
-									)}
-									<ItemName
-										style={{ width: !data.secretBallot ? "40%" : "50%" }}>
-										Button
-									</ItemName>
-								</Flex>
-								<hr />
-							</div>
+			{state && voteData ? (
+				<BasicColumnFlex key={id + "_" + voteData.title}>
+					<h1>{voteData.title}</h1>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							width: "100%",
+						}}>
+						<hr />
+						<Flex>
+							<ItemName
+								style={{ width: !voteData.secretBallot ? "40%" : "50%" }}>
+								Outcome
+							</ItemName>
+							{!voteData.secretBallot && (
+								<ItemName style={{ width: "20%" }}>Score</ItemName>
+							)}
+							<ItemName
+								style={{ width: !voteData.secretBallot ? "40%" : "50%" }}>
+								Button
+							</ItemName>
+						</Flex>
+						<hr />
+					</div>
 
-							{data?.items.map((list, idx) => {
-								return (
-									<Flex key={`${list.itemName}_${idx}`}>
-										<ItemName
-											style={{ width: !data.secretBallot ? "40%" : "50%" }}>
-											{list.itemName}
-										</ItemName>
-										{!data.secretBallot && (
-											<ItemName style={{ width: "20%" }}>{list.score}</ItemName>
-										)}
-										<ItemName
-											style={{ width: !data.secretBallot ? "40%" : "50%" }}>
-											<BasicButton
-												style={{
-													width: "100%",
-													backgroundColor: `${
-														selectItem?.itemName === list.itemName
-															? "#94C9FF"
-															: "whitesmoke"
-													}`,
-												}}
-												onClick={() =>
-													setSelectItem({
-														score: list.score + 1,
-														itemName: list.itemName,
-													})
-												}>
-												{selectItem?.itemName === list.itemName
-													? "선택완료"
-													: "선택하기"}
-											</BasicButton>
-										</ItemName>
-									</Flex>
-								);
-							})}
-							<hr />
-							<div
-								style={{
-									display: "flex",
-									justifyContent: "center",
-									gap: "1rem",
-									width: "80%",
-								}}>
-								<BasicButton
-									style={{ flex: 1, backgroundColor: "tomato", color: "white" }}
-									onClick={() => setSelectItem({ itemName: "", score: 0 })}>
-									다시
-								</BasicButton>
-								<BasicButton
-									style={{
-										flex: 1,
-										backgroundColor: "royalblue",
-										color: "white",
-									}}
-									onClick={() => SubmitVote()}>
-									확인
-								</BasicButton>
-							</div>
-						</BasicColumnFlex>
-					);
-				})
+					{voteData?.items.map((list, idx) => {
+						return (
+							<Flex key={`${list.itemName}_${idx}`}>
+								<ItemName
+									style={{ width: !voteData.secretBallot ? "40%" : "50%" }}>
+									{list.itemName}
+								</ItemName>
+								{!voteData.secretBallot && (
+									<ItemName style={{ width: "20%" }}>{list.score}</ItemName>
+								)}
+								<ItemName
+									style={{ width: !voteData.secretBallot ? "40%" : "50%" }}>
+									<BasicButton
+										style={{
+											width: "100%",
+											backgroundColor: `${
+												selectItem?.itemName === list.itemName
+													? "#94C9FF"
+													: "whitesmoke"
+											}`,
+										}}
+										onClick={() => {
+											if (
+												selectItem.itemName === list.itemName &&
+												selectItem.score > 0
+											) {
+												resetVote();
+											} else {
+												setSelectItem({
+													score: list.score + 1,
+													itemName: list.itemName,
+												});
+											}
+										}}>
+										{selectItem?.itemName === list.itemName
+											? "선택완료"
+											: "선택하기"}
+									</BasicButton>
+								</ItemName>
+							</Flex>
+						);
+					})}
+					<hr />
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "center",
+							gap: "1rem",
+							width: "80%",
+						}}>
+						<BasicButton
+							style={{ flex: 1, backgroundColor: "tomato", color: "white" }}
+							onClick={resetVote}>
+							다시
+						</BasicButton>
+						<BasicButton
+							style={{
+								flex: 1,
+								backgroundColor: "royalblue",
+								color: "white",
+							}}
+							onClick={() => SubmitVote()}>
+							확인
+						</BasicButton>
+					</div>
+				</BasicColumnFlex>
 			) : (
 				<div>{stateMessage}</div>
 			)}

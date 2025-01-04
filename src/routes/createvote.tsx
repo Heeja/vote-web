@@ -32,6 +32,12 @@ const Input = styled.input`
 	border-radius: 0.25rem;
 	padding: 0.25rem 0.5rem;
 `;
+const Button = styled.button`
+	min-width: 1.2rem;
+	min-height: 1.2rem;
+	border-radius: 0.4rem;
+	font-size: 1.1rem;
+`;
 
 const Label = styled.label``;
 
@@ -61,10 +67,12 @@ export default function Createvote() {
 			doubleOn: doubleOn,
 			location: mapOn ? location : "",
 			anonyOn: anonyOn,
-			secretBallot: secretBallot,
+			secretBallot: anonyOn ? true : secretBallot,
 			limit: limit,
 			createTime: Timestamp.fromDate(new Date()),
 			createUser: userData.uid,
+			completed: [],
+			members: [],
 		};
 
 		// firestore save
@@ -98,7 +106,7 @@ export default function Createvote() {
 			{mapOn ? (
 				<Modal
 					title="위치 정하기"
-					isVisible={mapOn}
+					// isVisible={mapOn}
 					onClose={() => setMapOn(false)}>
 					<Googlemaps />
 				</Modal>
@@ -124,7 +132,7 @@ export default function Createvote() {
 					<InputBox key={idx}>
 						<Label htmlFor={idx.toString()}>투표항목</Label>
 						<div>{item.itemName}</div>
-						<button
+						<Button
 							id={item.itemName}
 							onClick={() => {
 								const sliceItems = items.slice(0, idx - 1);
@@ -132,8 +140,8 @@ export default function Createvote() {
 
 								setItems(sliceItems);
 							}}>
-							X
-						</button>
+							𝘅
+						</Button>
 					</InputBox>
 				);
 			})}
@@ -161,7 +169,9 @@ export default function Createvote() {
 			<InputBox>
 				<Label htmlFor="location">위치 지정(반경500m)</Label>
 				{locationOn ? (
-					<button onClick={() => setMapOn(true)}>위치정보 지정하기</button>
+					<button disabled onClick={() => setMapOn(true)}>
+						위치정보 지정하기
+					</button>
 				) : null}
 				<Input
 					id="location"
@@ -170,11 +180,18 @@ export default function Createvote() {
 				/>
 			</InputBox>
 			<InputBox>
-				<Label htmlFor="anonymously">익명 여부</Label>
+				<Label htmlFor="anonymously">익명 투표</Label>
 				<Input
 					id="anonymously"
 					type="checkbox"
-					onClick={() => setAnonyOn((prev) => !prev)}
+					onClick={() => {
+						setAnonyOn((prev) => !prev);
+						if (!anonyOn) {
+							setSecretBallot(true);
+						} else {
+							setSecretBallot(false);
+						}
+					}}
 				/>
 			</InputBox>
 			<InputBox>
@@ -182,6 +199,8 @@ export default function Createvote() {
 				<Input
 					id="secretBallot"
 					type="checkbox"
+					disabled={anonyOn ? true : false}
+					checked={secretBallot ? true : false}
 					onClick={() => setSecretBallot((prev) => !prev)}
 				/>
 			</InputBox>

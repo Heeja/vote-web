@@ -7,8 +7,10 @@ export interface IVoteItems {
 }
 export interface IVoteData {
 	anonyOn: boolean;
-	createTime: Timestamp;
 	createUser: string;
+	createTime: Timestamp;
+	closeTime: Timestamp;
+	state: boolean;
 	doubleOn: boolean;
 	secretBallot: boolean;
 	items: IVoteItems[];

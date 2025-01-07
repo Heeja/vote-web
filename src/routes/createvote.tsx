@@ -9,6 +9,7 @@ import Modal from "../components/Modal";
 import { database } from "./firebase";
 import firebaseSessionStorage from "../util/firebaseSessionStorage";
 import { IVoteItems } from "../common/voteTypes";
+import { TransformDateTime } from "../util/transformDateString";
 
 const Wrapper = styled.div`
 	display: flex;
@@ -31,6 +32,7 @@ const Input = styled.input`
 	border: none;
 	border-radius: 0.25rem;
 	padding: 0.25rem 0.5rem;
+	max-width: 200px;
 `;
 const Button = styled.button`
 	min-width: 1.2rem;
@@ -49,10 +51,12 @@ export default function Createvote() {
 	const [anonyOn, setAnonyOn] = useState(false);
 	const [mapOn, setMapOn] = useState(false);
 	const [secretBallot, setSecretBallot] = useState(false);
+	const [closeSet, setCloseSet] = useState(false);
 
 	const [title, setTitle] = useState("");
 	const [items, setItems] = useState<IVoteItems[]>([]);
 	const [limit, setLimit] = useState(0);
+	const [closeTime, setCloseTime] = useState(new Date());
 
 	const addItem = useRef<HTMLInputElement | null>(null);
 	const [addItemName, setAddItemName] = useState("");
@@ -69,8 +73,10 @@ export default function Createvote() {
 			anonyOn: anonyOn,
 			secretBallot: anonyOn ? true : secretBallot,
 			limit: limit,
-			createTime: Timestamp.fromDate(new Date()),
 			createUser: userData.uid,
+			createTime: Timestamp.fromDate(new Date()),
+			closeTime: Timestamp.fromDate(closeTime),
+			state: true,
 			completed: [],
 			members: [],
 		};
@@ -159,6 +165,24 @@ export default function Createvote() {
 			)}
 			<hr />
 			<InputBox>
+				<Label htmlFor="closeSet">종료 일시</Label>
+				{closeSet && (
+					<Input
+						id="closeTime"
+						type="datetime-local"
+						style={{ wordSpacing: "-0.6rem" }}
+						value={TransformDateTime(closeTime)}
+						onChange={(e) => setCloseTime(new Date(e.target.value))}
+					/>
+				)}
+				<Input
+					id="closeSet"
+					type="checkbox"
+					checked={closeSet}
+					onChange={() => setCloseSet((prev) => !prev)}
+				/>
+			</InputBox>
+			<InputBox>
 				<Label htmlFor="double">중복 선택</Label>
 				<Input
 					id="double"
@@ -200,8 +224,8 @@ export default function Createvote() {
 					id="secretBallot"
 					type="checkbox"
 					disabled={anonyOn ? true : false}
-					checked={secretBallot ? true : false}
-					onClick={() => setSecretBallot((prev) => !prev)}
+					checked={secretBallot}
+					onChange={() => setSecretBallot((prev) => !prev)}
 				/>
 			</InputBox>
 			<InputBox>

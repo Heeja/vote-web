@@ -80,7 +80,6 @@ export default function Vote() {
 	const [voteMember, setVoteMember] = useState("");
 
 	// Functions
-
 	/**
 	 * id에 해당하는 투표 정보를 가져온다.
 	 */
@@ -104,25 +103,37 @@ export default function Vote() {
 
 			data.forEach((doc) => {
 				// 공개 투표일 경우 데이터 필터
-				if (anony) {
-					const rawData = doc.data();
-					const filteredData: IVoteData = {
-						title: rawData.title,
-						items: rawData.items,
-						secretBallot: rawData.secretBallot,
-						anonyOn: rawData.anonyOn,
-						createTime: rawData.createTime,
-						createUser: rawData.createUser,
-						doubleOn: rawData.doubleOn,
-						limit: rawData.limit,
-						location: rawData.location,
-					};
-					setVoteData(filteredData);
+				const rawData = doc.data();
+
+				if (!rawData.state || rawData.closeTime.toDate() < new Date()) {
+					setState(false);
+					setStateMessage("종료된 투표입니다.");
+				} else if (rawData.completed.length >= rawData.limit) {
+					setState(false);
+					setStateMessage("투표인원이 가득찼습니다.");
 				} else {
-					setVoteData(doc.data() as IVoteData);
+					if (anony) {
+						const filteredData: IVoteData = {
+							title: rawData.title,
+							items: rawData.items,
+							secretBallot: rawData.secretBallot,
+							anonyOn: rawData.anonyOn,
+							createUser: rawData.createUser,
+							createTime: rawData.createTime,
+							closeTime: rawData.closeTime,
+							state: rawData.state,
+							doubleOn: rawData.doubleOn,
+							limit: rawData.limit,
+							location: rawData.location,
+						};
+						setVoteData(filteredData);
+						setState(true);
+					} else {
+						setVoteData(doc.data() as IVoteData);
+						setState(true);
+					}
 				}
 			});
-			setState(true);
 		} catch (error) {
 			setState(false);
 			setStateMessage("정보 조회에 실패하였습니다.");
@@ -153,6 +164,13 @@ export default function Vote() {
 					if (currentData.completed?.includes(voteMember)) {
 						throw new Error("이미 투표하셨습니다!");
 					}
+					if (
+						!currentData.state ||
+						currentData.closeTime.toDate() < new Date()
+					) {
+						throw new Error("투표가 종료되었습니다.");
+					}
+					console.log(currentData.closeTime);
 
 					const updateItems = [...currentData.items].map((item) => {
 						if (item.itemName === selectItem.itemName) {

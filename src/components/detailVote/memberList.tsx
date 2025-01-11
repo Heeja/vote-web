@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { IVotedInfo } from "../../common/voteTypes";
 
 const ListBox = styled.div`
 	display: flex;
@@ -11,22 +12,21 @@ const ListItem = styled.div<{ flex: number }>`
 	justify-content: center;
 	align-items: center;
 	border: 0.05rem solid snow;
+	border-radius: 0.3rem;
 	padding: 0.3rem 0;
 `;
 
 interface IProps {
-	memberName: string;
+	member: IVotedInfo;
 	seq: number;
-	completed?: boolean;
+	ballot?: boolean;
 }
-export default function MemberList({ memberName, seq, completed }: IProps) {
+export default function MemberList({ member, seq, ballot }: IProps) {
 	return (
 		<ListBox>
-			<ListItem flex={1}>{seq + 1}</ListItem>
-			<ListItem flex={2}>{memberName}</ListItem>
-			{completed && (
-				<ListItem flex={1.5}>{completed ? "참여완료" : "미참여"}</ListItem>
-			)}
+			<ListItem flex={1}>{seq === -1 ? "No" : seq + 1}</ListItem>
+			<ListItem flex={2}>{member.name}</ListItem>
+			{ballot && <ListItem flex={2}>{member.itemName}</ListItem>}
 		</ListBox>
 	);
 }

@@ -10,7 +10,6 @@ const ModalContatiner = styled.div`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: rgb(0 0 0 0.4);
 `;
 
 const ModalBackDrop = styled.div`
@@ -28,7 +27,7 @@ const ModalContent = styled.div`
 	height: 100%;
 	max-width: 360px;
 	max-height: 735px;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(0, 0, 0, 0.7);
 	border-radius: 10px;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 	padding: 2rem;

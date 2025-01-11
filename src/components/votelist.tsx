@@ -174,7 +174,6 @@ export default function Votelist() {
 							list[key].createTime.seconds * 1000 +
 								list[key].createTime.nanoseconds / 1000000
 						);
-						console.log(fireBaseTime);
 						const date = TransformDateString(fireBaseTime);
 						return (
 							<VoteBox key={idx}>

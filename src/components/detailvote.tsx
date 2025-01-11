@@ -164,12 +164,19 @@ export default function Detailvote() {
 			{memberView && (
 				<Modal title={"투표 멤버"} onClose={() => setMemberView(false)}>
 					<ModalListBox>
-						{/* 
-							공개: memeber: x, completed: o
-							비공개: memeber: o, completed: o
-						*/}
+						<MemberList
+							member={{ name: "투표자", itemName: "항목이름" }}
+							seq={-1}
+							ballot={voteInfo?.secretBallot}
+						/>
 						{voteInfo?.completed?.map((member, idx) => {
-							return <MemberList memberName={member.name} seq={idx} />;
+							return (
+								<MemberList
+									member={member}
+									seq={idx}
+									ballot={voteInfo.secretBallot}
+								/>
+							);
 						})}
 					</ModalListBox>
 				</Modal>

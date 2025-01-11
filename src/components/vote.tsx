@@ -17,6 +17,7 @@ import {
 	Flex,
 } from "../common/basicStyled";
 import { IVoteData, IVoteItems } from "../common/voteTypes";
+import Modal from "./Modal";
 
 // styled components
 // const Item = styled.div`
@@ -78,6 +79,8 @@ export default function Vote() {
 	});
 	const [voteMember, setVoteMember] = useState("");
 
+	const [modalBallot, setModalBallot] = useState(false);
+
 	// Functions
 	/**
 	 * id에 해당하는 투표 정보를 가져온다.
@@ -85,12 +88,18 @@ export default function Vote() {
 	const getVoteInfo = async () => {
 		try {
 			if (!anony) {
-				const currentUser = await auth.currentUser;
-
-				if (!currentUser) {
-					setStateMessage("비공개 투표는 로그인이 필요합니다.");
-					return;
-				}
+				// onAuthStateChanged를 사용하여 인증 상태 확인
+				// auth.currentUser는 Auth가 비동기적으로 초기화되기 때문에 초기화 완료 전에 currentUser는 null이 된다.
+				await new Promise<void>((resolve, reject) => {
+					const unsubscribe = auth.onAuthStateChanged((user) => {
+						if (user) {
+							resolve();
+						} else {
+							reject(new Error("로그인이 필요합니다."));
+						}
+						unsubscribe();
+					});
+				});
 			}
 			const queryCollection = collection(
 				database,
@@ -117,7 +126,6 @@ export default function Vote() {
 				} else if (rawData.completed.length >= rawData.limit) {
 					setStateMessage("투표인원이 가득찼습니다.");
 				} else {
-					console.log(anony);
 					if (anony) {
 						const filteredData: IVoteData = {
 							title: rawData.title,
@@ -212,10 +220,25 @@ export default function Vote() {
 	useEffect(() => {
 		getVoteInfo();
 	}, []);
-	// console.log(voteData);
+
+	useEffect(() => {
+		const unsubscribe = auth.onAuthStateChanged((user) => {
+			if (!user && !anony) {
+				setStateMessage("비공개 투표는 로그인이 필요합니다.");
+				navigate("/login"); // 로그인 페이지로 리다이렉트
+			}
+		});
+
+		return () => unsubscribe(); // cleanup
+	}, []);
 
 	return (
 		<>
+			{modalBallot && (
+				<Modal title="투표 현황" onClose={() => setModalBallot(false)}>
+					<div>^____^</div>
+				</Modal>
+			)}
 			<CenterFlex
 				style={{ width: "100%", position: "relative", padding: "1rem 0" }}>
 				<button
@@ -301,9 +324,7 @@ export default function Vote() {
 					})}
 					<hr />
 					<ButtonBox>
-						{!anony ? (
-							<BasicButton>개표 보기</BasicButton>
-						) : (
+						{anony ? (
 							<InputBox
 								style={{
 									display: "flex",
@@ -322,6 +343,14 @@ export default function Vote() {
 									}}
 								/>
 							</InputBox>
+						) : (
+							voteData.secretBallot && (
+								<BasicButton
+									style={{ flex: 1, backgroundColor: "" }}
+									onClick={() => setModalBallot(true)}>
+									개표확인
+								</BasicButton>
+							)
 						)}
 					</ButtonBox>
 					<ButtonBox>

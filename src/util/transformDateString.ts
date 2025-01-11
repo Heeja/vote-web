@@ -1,15 +1,10 @@
-export default function TransformDateString({
-	dateValue,
-	plusDate,
-}: {
-	dateValue: Date;
-	plusDate?: number;
-}) {
+export default function TransformDateString(dateValue: Date) {
 	const year = dateValue.getFullYear().toString();
 	const month = (dateValue.getMonth() + 1).toString();
-	const date = plusDate
-		? (dateValue.getDate() + plusDate).toString()
-		: dateValue.getDate().toString();
+	const date = dateValue.getDate().toString();
+	// plusDate
+	// 	? (dateValue.getDate() + plusDate).toString()
+	// 	: dateValue.getDate().toString();
 
 	const twodigitMonth = month.length < 2 ? "0" + month : month;
 	const twoDigitDate = date.length < 2 ? "0" + date : date;
@@ -17,9 +12,7 @@ export default function TransformDateString({
 	const result = `${year}-${twodigitMonth}-${twoDigitDate}`;
 	return result;
 }
-
-export function TransformDateTime(dateValue: Date) {
-	const dateString = TransformDateString({ dateValue, plusDate: 3 });
+function TimeString(dateValue: Date) {
 	const hour =
 		dateValue.getHours() > 9
 			? dateValue.getHours()
@@ -29,5 +22,19 @@ export function TransformDateTime(dateValue: Date) {
 			? dateValue.getMinutes()
 			: "0" + dateValue.getMinutes();
 
+	return { hour, minutes };
+}
+
+export function TransformDateTime(dateValue: Date) {
+	const dateString = TransformDateString(dateValue);
+	const { hour, minutes } = TimeString(dateValue);
+
 	return dateString + `T${hour}:${minutes}`;
+}
+
+export function TransformDateTimeString(dateValue: Date) {
+	const dateString = TransformDateString(dateValue);
+	const { hour, minutes } = TimeString(dateValue);
+
+	return `${dateString} ${hour}:${minutes}`;
 }

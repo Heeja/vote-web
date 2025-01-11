@@ -96,7 +96,7 @@ export default function Vote() {
 			});
 
 			if (data.empty) {
-				console.log("data.empty", data.empty);
+				// console.log("data.empty", data.empty);
 				setStateMessage("조건에 맞는 문서를 찾을 수 없습니다.");
 				return { success: false, error: "조건에 맞는 문서가 없습니다." };
 			}

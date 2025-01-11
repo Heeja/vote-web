@@ -8,9 +8,12 @@ import VoteEditModal from "../components/detailVote/editModal";
 import ResultBody from "../components/detailVote/resultBody";
 import HeaderBody from "../components/detailVote/headerBody";
 // import TransformDateString from "../util/transformDateString";
-import { IVoteDataExtends } from "../common/voteTypes";
+import { IVoteData } from "../common/voteTypes";
 import { database } from "../routes/firebase";
 import MemberList from "./detailVote/memberList";
+import TransformDateString, {
+	TransformDateTimeString,
+} from "../util/transformDateString";
 
 // import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
 // import { ReactComponent as SortDown } from "../asset/svg/sortDown.svg";
@@ -31,12 +34,27 @@ const Title = styled.h1`
 	text-align: center;
 	border-bottom: 0.1rem solid #fff;
 	margin: 0.3rem 0;
+	font-weight: 700;
 `;
-
-const SubText = styled.p`
+const TimeBox = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+`;
+const SubText = styled.div`
 	align-self: flex-end;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-template-rows: 1fr;
+	grid-column-gap: 20px;
+	justify-items: flex-end;
 	font-size: 0.8rem;
-	margin-bottom: 0.3rem;
+	margin-bottom: 0.2rem;
+
+	:last-child {
+		font-size: 0.9rem;
+		font-weight: 500;
+	}
 `;
 
 const Body = styled.div`
@@ -74,7 +92,7 @@ export default function Detailvote() {
 	const navigate = useNavigate();
 	const { state } = useLocation();
 	const [dataState, setDataState] = useState(false);
-	const [voteInfo, setVoteInfo] = useState<IVoteDataExtends>();
+	const [voteInfo, setVoteInfo] = useState<IVoteData>();
 	const [enableEdit, setEnableEdit] = useState(false);
 	const [editModal, setEditModal] = useState(false);
 	const [memberView, setMemberView] = useState(false);
@@ -106,7 +124,7 @@ export default function Detailvote() {
 			}
 
 			data.forEach((doc) => {
-				setVoteInfo(doc.data() as IVoteDataExtends);
+				setVoteInfo(doc.data() as IVoteData);
 			});
 		} catch (error) {
 			console.log(error);
@@ -148,25 +166,38 @@ export default function Detailvote() {
 			{memberView && (
 				<Modal title={"투표 멤버"} onClose={() => setMemberView(false)}>
 					<ModalListBox>
-						{voteInfo?.members.map((member, idx) => {
-							const completed = voteInfo.completed.includes(member);
-							return (
-								<MemberList
-									memberName={member}
-									seq={idx}
-									completed={completed}
-								/>
-							);
-						})}
+						{voteInfo?.members &&
+							voteInfo.members.map((member, idx) => {
+								if (voteInfo.completed) {
+									const completed = voteInfo.completed.includes(member);
+									return (
+										<MemberList
+											memberName={member}
+											seq={idx}
+											completed={completed}
+										/>
+									);
+								}
+								return <>없음</>;
+							})}
 					</ModalListBox>
 				</Modal>
 			)}
 			{dataState && voteInfo ? (
 				<>
 					<Title>{voteInfo.title}</Title>
-					<SubText>
-						생성일: {voteInfo.createTime.toDate().toLocaleDateString()}
-					</SubText>
+					<TimeBox>
+						<SubText>
+							<span>생성일: </span>
+							<span>
+								{TransformDateTimeString(voteInfo.createTime.toDate())}
+							</span>
+						</SubText>
+						<SubText>
+							종료일시:{" "}
+							<b>{TransformDateTimeString(voteInfo.closeTime.toDate())}</b>
+						</SubText>
+					</TimeBox>
 					<Body>
 						<HeaderBody headerList={headerList} onSortResult={onSortResult} />
 						<ResultBody data={voteInfo.items} />

@@ -11,9 +11,7 @@ import HeaderBody from "../components/detailVote/headerBody";
 import { IVoteData } from "../common/voteTypes";
 import { database } from "../routes/firebase";
 import MemberList from "./detailVote/memberList";
-import TransformDateString, {
-	TransformDateTimeString,
-} from "../util/transformDateString";
+import { TransformDateTimeString } from "../util/transformDateString";
 
 // import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
 // import { ReactComponent as SortDown } from "../asset/svg/sortDown.svg";
@@ -119,7 +117,7 @@ export default function Detailvote() {
 			const data = await getDocs(fireQuery);
 
 			if (data.empty) {
-				console.log("data.empty", data.empty);
+				// console.log("data.empty", data.empty);
 				return { success: false, error: "조건에 맞는 문서가 없습니다." };
 			}
 
@@ -131,7 +129,6 @@ export default function Detailvote() {
 			return error;
 		}
 	};
-	console.log(voteInfo);
 
 	useEffect(() => {
 		const readVoteData = () => {
@@ -153,6 +150,7 @@ export default function Detailvote() {
 		}
 	}, [voteInfo]);
 
+	console.log(voteInfo);
 	return (
 		<Box>
 			{voteInfo && editModal && (
@@ -166,20 +164,13 @@ export default function Detailvote() {
 			{memberView && (
 				<Modal title={"투표 멤버"} onClose={() => setMemberView(false)}>
 					<ModalListBox>
-						{voteInfo?.members &&
-							voteInfo.members.map((member, idx) => {
-								if (voteInfo.completed) {
-									const completed = voteInfo.completed.includes(member);
-									return (
-										<MemberList
-											memberName={member}
-											seq={idx}
-											completed={completed}
-										/>
-									);
-								}
-								return <>없음</>;
-							})}
+						{/* 
+							공개: memeber: x, completed: o
+							비공개: memeber: o, completed: o
+						*/}
+						{voteInfo?.completed?.map((member, idx) => {
+							return <MemberList memberName={member} seq={idx} />;
+						})}
 					</ModalListBox>
 				</Modal>
 			)}

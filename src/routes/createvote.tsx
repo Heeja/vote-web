@@ -77,8 +77,8 @@ export default function Createvote() {
 			createTime: Timestamp.fromDate(new Date()),
 			closeTime: Timestamp.fromDate(closeTime),
 			state: true,
-			completed: [],
-			members: [],
+			completed: {},
+			members: {},
 		};
 
 		// firestore save

@@ -17,14 +17,16 @@ const ListItem = styled.div<{ flex: number }>`
 interface IProps {
 	memberName: string;
 	seq: number;
-	completed: boolean;
+	completed?: boolean;
 }
 export default function MemberList({ memberName, seq, completed }: IProps) {
 	return (
 		<ListBox>
 			<ListItem flex={1}>{seq + 1}</ListItem>
 			<ListItem flex={2}>{memberName}</ListItem>
-			<ListItem flex={1.5}>{completed ? "참여완료" : "미참여"}</ListItem>
+			{completed && (
+				<ListItem flex={1.5}>{completed ? "참여완료" : "미참여"}</ListItem>
+			)}
 		</ListBox>
 	);
 }

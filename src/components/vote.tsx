@@ -7,7 +7,7 @@ import {
 	runTransaction,
 	where,
 } from "firebase/firestore";
-import { database } from "../routes/firebase";
+import { auth, database } from "../routes/firebase";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import {
@@ -67,10 +67,9 @@ export default function Vote() {
 
 	const location = useLocation();
 	const paramsURL = new URLSearchParams(location.search);
-	const anony = paramsURL.get("anony");
+	const anony = paramsURL.get("anony") === "true";
 
 	const { id } = useParams();
-	const [state, setState] = useState(false);
 	const [stateMessage, setStateMessage] = useState("로딩중...");
 	const [voteData, setVoteData] = useState<IVoteData>();
 	const [selectItem, setSelectItem] = useState<IVoteItems>({
@@ -85,6 +84,14 @@ export default function Vote() {
 	 */
 	const getVoteInfo = async () => {
 		try {
+			if (!anony) {
+				const currentUser = await auth.currentUser;
+
+				if (!currentUser) {
+					setStateMessage("비공개 투표는 로그인이 필요합니다.");
+					return;
+				}
+			}
 			const queryCollection = collection(
 				database,
 				anony ? "publicVote" : "privateVote"
@@ -96,7 +103,7 @@ export default function Vote() {
 			});
 
 			if (data.empty) {
-				// console.log("data.empty", data.empty);
+				console.log("data.empty", data.empty);
 				setStateMessage("조건에 맞는 문서를 찾을 수 없습니다.");
 				return { success: false, error: "조건에 맞는 문서가 없습니다." };
 			}
@@ -106,12 +113,11 @@ export default function Vote() {
 				const rawData = doc.data();
 
 				if (!rawData.state || rawData.closeTime.toDate() < new Date()) {
-					setState(false);
 					setStateMessage("종료된 투표입니다.");
 				} else if (rawData.completed.length >= rawData.limit) {
-					setState(false);
 					setStateMessage("투표인원이 가득찼습니다.");
 				} else {
+					console.log(anony);
 					if (anony) {
 						const filteredData: IVoteData = {
 							title: rawData.title,
@@ -127,15 +133,12 @@ export default function Vote() {
 							location: rawData.location,
 						};
 						setVoteData(filteredData);
-						setState(true);
 					} else {
 						setVoteData(doc.data() as IVoteData);
-						setState(true);
 					}
 				}
 			});
 		} catch (error) {
-			setState(false);
 			setStateMessage("정보 조회에 실패하였습니다.");
 			return;
 		}
@@ -170,7 +173,7 @@ export default function Vote() {
 					) {
 						throw new Error("투표가 종료되었습니다.");
 					}
-					console.log(currentData.closeTime);
+					// console.log(currentData.closeTime);
 
 					const updateItems = [...currentData.items].map((item) => {
 						if (item.itemName === selectItem.itemName) {
@@ -209,6 +212,7 @@ export default function Vote() {
 	useEffect(() => {
 		getVoteInfo();
 	}, []);
+	// console.log(voteData);
 
 	return (
 		<>
@@ -222,12 +226,12 @@ export default function Vote() {
 						fontWeight: "bold",
 						padding: "0.2rem 0.6rem",
 					}}
-					onClick={() => navigate(-1)}>
+					onClick={() => navigate("/")}>
 					뒤로가기
 				</button>
 			</CenterFlex>
 			<hr />
-			{state && voteData ? (
+			{voteData ? (
 				<BasicColumnFlex key={id + "_" + voteData.title}>
 					<h1>{voteData.title}</h1>
 					<div

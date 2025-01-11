@@ -16,7 +16,7 @@ import {
 	CenterFlex,
 	Flex,
 } from "../common/basicStyled";
-import { IVoteData, IVoteItems } from "../common/voteTypes";
+import { IVoteData, IVotedInfo, IVoteItems } from "../common/voteTypes";
 import Modal from "./Modal";
 
 // styled components
@@ -77,7 +77,11 @@ export default function Vote() {
 		itemName: "",
 		score: 0,
 	});
-	const [voteMember, setVoteMember] = useState({ score: 0, name: "" });
+	const [voteMember, setVoteMember] = useState<IVotedInfo>({
+		itemName: "",
+		name: "",
+		id: "",
+	});
 
 	const [modalBallot, setModalBallot] = useState(false);
 
@@ -93,7 +97,11 @@ export default function Vote() {
 				await new Promise<void>((resolve, reject) => {
 					const unsubscribe = auth.onAuthStateChanged((user) => {
 						if (user) {
-							setVoteMember((prev) => ({ ...prev, name: user.uid }));
+							setVoteMember((prev) => ({
+								...prev,
+								id: user.uid,
+								name: user.displayName as string,
+							}));
 							resolve();
 						} else {
 							reject(new Error("로그인이 필요합니다."));
@@ -174,7 +182,7 @@ export default function Vote() {
 
 					// 이미 투표했는지 확인
 					currentData.completed?.forEach((list) => {
-						if (list.name === voteMember.name) {
+						if (list.id === voteMember.id || list.name === voteMember.name) {
 							throw new Error("이미 투표하셨습니다.");
 						}
 					});
@@ -317,6 +325,10 @@ export default function Vote() {
 													score: list.score + 1,
 													itemName: list.itemName,
 												});
+												setVoteMember((prev) => ({
+													...prev,
+													itemName: list.itemName,
+												}));
 											}
 										}}>
 										{selectItem?.itemName === list.itemName

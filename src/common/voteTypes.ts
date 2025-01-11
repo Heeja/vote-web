@@ -5,6 +5,12 @@ export interface IVoteItems {
 	itemName: string;
 	score: number;
 }
+export interface IVotedInfo {
+	[key: string]: number | string | undefined;
+	name: string;
+	itemName: string;
+	id?: string | undefined;
+}
 export interface IVoteData {
 	anonyOn: boolean;
 	createUser: string;
@@ -17,6 +23,6 @@ export interface IVoteData {
 	limit: number;
 	location: string;
 	title: string;
-	completed?: IVoteItems[];
+	completed?: IVotedInfo[];
 	members?: string[];
 }

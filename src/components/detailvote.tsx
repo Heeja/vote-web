@@ -169,7 +169,7 @@ export default function Detailvote() {
 							비공개: memeber: o, completed: o
 						*/}
 						{voteInfo?.completed?.map((member, idx) => {
-							return <MemberList memberName={member} seq={idx} />;
+							return <MemberList memberName={member.name} seq={idx} />;
 						})}
 					</ModalListBox>
 				</Modal>

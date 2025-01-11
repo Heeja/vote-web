@@ -77,7 +77,7 @@ export default function Vote() {
 		itemName: "",
 		score: 0,
 	});
-	const [voteMember, setVoteMember] = useState("");
+	const [voteMember, setVoteMember] = useState({ score: 0, name: "" });
 
 	const [modalBallot, setModalBallot] = useState(false);
 
@@ -93,6 +93,7 @@ export default function Vote() {
 				await new Promise<void>((resolve, reject) => {
 					const unsubscribe = auth.onAuthStateChanged((user) => {
 						if (user) {
+							setVoteMember((prev) => ({ ...prev, name: user.uid }));
 							resolve();
 						} else {
 							reject(new Error("로그인이 필요합니다."));
@@ -172,9 +173,13 @@ export default function Vote() {
 					const currentData = currentDoc.data() as IVoteData;
 
 					// 이미 투표했는지 확인
-					if (currentData.completed?.includes(voteMember)) {
-						throw new Error("이미 투표하셨습니다!");
-					}
+					currentData.completed?.forEach((list) => {
+						if (list.name === voteMember.name) {
+							throw new Error("이미 투표하셨습니다.");
+						}
+					});
+
+					// 투표 마감(투표시간 종료, 상태 종료)
 					if (
 						!currentData.state ||
 						currentData.closeTime.toDate() < new Date()
@@ -336,10 +341,10 @@ export default function Vote() {
 								<input
 									type="text"
 									placeholder="이름"
-									value={voteMember}
+									value={voteMember.name}
 									onChange={(e) => {
 										const { value } = e.target;
-										setVoteMember(value);
+										setVoteMember((prev) => ({ ...prev, name: value }));
 									}}
 								/>
 							</InputBox>

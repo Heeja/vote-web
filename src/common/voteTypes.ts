@@ -17,6 +17,6 @@ export interface IVoteData {
 	limit: number;
 	location: string;
 	title: string;
-	completed?: string[];
+	completed?: IVoteItems[];
 	members?: string[];
 }

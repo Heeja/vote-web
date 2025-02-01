@@ -150,7 +150,6 @@ export default function Detailvote() {
 		}
 	}, [voteInfo]);
 
-	console.log(voteInfo);
 	return (
 		<Box>
 			{voteInfo && editModal && (

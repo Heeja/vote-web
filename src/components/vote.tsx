@@ -16,7 +16,7 @@ import {
 	CenterFlex,
 	Flex,
 } from "../common/basicStyled";
-import { IVoteData, IVotedInfo, IVoteItems } from "../common/voteTypes";
+import { IVoteData, IVotedInfo } from "../common/voteTypes";
 import Modal from "./Modal";
 
 // styled components
@@ -53,6 +53,18 @@ const InputBox = styled.div`
 	align-items: center;
 	gap: 1rem;
 	margin: 0.4rem 0;
+	min-height: 2rem;
+	padding: 0.2rem;
+
+	input {
+		height: 100%;
+		padding: 0.3rem;
+	}
+`;
+const TextBox = styled.div`
+	display: flex;
+	font-weight: 700;
+	font-size: medium;
 `;
 
 // type interface
@@ -71,19 +83,18 @@ export default function Vote() {
 	const anony = paramsURL.get("anony") === "true";
 
 	const { id } = useParams();
-	const [stateMessage, setStateMessage] = useState("로딩중...");
-	const [voteData, setVoteData] = useState<IVoteData>();
-	const [selectItem, setSelectItem] = useState<IVoteItems>({
-		itemName: "",
-		score: 0,
-	});
+	const [stateMessage, setStateMessage] = useState("로딩중..."); // 상태 메시지
+	const [voteData, setVoteData] = useState<IVoteData>(); // api data 담을 공간
+	// 투표 반영할 선택값들
+	const [selectItem, setSelectItem] = useState<string[]>([]);
+	// 투표자 정보
 	const [voteMember, setVoteMember] = useState<IVotedInfo>({
 		itemName: "",
 		name: "",
 		id: "",
 	});
 
-	const [modalBallot, setModalBallot] = useState(false);
+	const [modalBallot, setModalBallot] = useState(false); // 개표 모달 on|off
 
 	// Functions
 	/**
@@ -160,14 +171,13 @@ export default function Vote() {
 			return;
 		}
 	};
-
 	/**
 	 * 투표 정보 업데이트
 	 */
 	function SubmitVote() {
 		try {
-			if (!selectItem.itemName) throw new Error("빈 값");
-			if (!voteMember) throw new Error("투표자 이름을 입력해주세요");
+			if (selectItem.length < 1) throw new Error("빈 값");
+			if (!voteMember.name) throw new Error("투표자 이름을 입력해주세요");
 
 			if (voteData) {
 				runTransaction(database, async (transaction) => {
@@ -182,7 +192,10 @@ export default function Vote() {
 
 					// 이미 투표했는지 확인
 					currentData.completed?.forEach((list) => {
-						if (list.id === voteMember.id || list.name === voteMember.name) {
+						if (
+							(list.id && list.id === voteMember.id) ||
+							list.name === voteMember.name
+						) {
 							throw new Error("이미 투표하셨습니다.");
 						}
 					});
@@ -194,18 +207,21 @@ export default function Vote() {
 					) {
 						throw new Error("투표가 종료되었습니다.");
 					}
-					// console.log(currentData.closeTime);
 
+					// 투표 반영 값
 					const updateItems = [...currentData.items].map((item) => {
-						if (item.itemName === selectItem.itemName) {
+						if (selectItem.includes(item.itemName)) {
 							return { ...item, score: item.score + 1 };
 						}
 						return item;
 					});
+					// 투표자 기록
 					const completed = currentData.completed
 						? [...currentData.completed, voteMember]
 						: [voteMember];
 
+					console.log("업데이트 아이템:", updateItems);
+					console.log("투표자:", completed);
 					// 검증이 완료된 후 업데이트
 					transaction.update(voteRef, { items: updateItems, completed });
 				})
@@ -228,7 +244,7 @@ export default function Vote() {
 	 *
 	 */
 	const resetVote = () => {
-		setSelectItem({ itemName: "", score: 0 });
+		setSelectItem([]);
 	};
 	useEffect(() => {
 		getVoteInfo();
@@ -309,29 +325,25 @@ export default function Vote() {
 										style={{
 											width: "100%",
 											backgroundColor: `${
-												selectItem?.itemName === list.itemName
+												selectItem.includes(list.itemName)
 													? "#94C9FF"
 													: "whitesmoke"
 											}`,
 										}}
 										onClick={() => {
-											if (
-												selectItem.itemName === list.itemName &&
-												selectItem.score > 0
-											) {
-												resetVote();
+											if (selectItem.includes(list.itemName)) {
+												setSelectItem((prev) =>
+													prev.filter((item) => item !== list.itemName)
+												);
 											} else {
-												setSelectItem({
-													score: list.score + 1,
-													itemName: list.itemName,
-												});
+												setSelectItem((prev) => [...prev, list.itemName]);
 												setVoteMember((prev) => ({
 													...prev,
 													itemName: list.itemName,
 												}));
 											}
 										}}>
-										{selectItem?.itemName === list.itemName
+										{selectItem.includes(list.itemName)
 											? "선택완료"
 											: "선택하기"}
 									</BasicButton>
@@ -349,7 +361,17 @@ export default function Vote() {
 									alignItems: "center",
 									gap: "1rem",
 								}}>
-								<div>*투표자:</div>
+								<TextBox>
+									<p
+										style={{
+											fontSize: 14,
+											verticalAlign: "super",
+											color: "#ff4141",
+										}}>
+										*
+									</p>
+									투표자:
+								</TextBox>
 								<input
 									type="text"
 									placeholder="이름"

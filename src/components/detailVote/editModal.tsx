@@ -69,7 +69,10 @@ export default function VoteEditModal({
 	 */
 	function SubmitChangeVoteInfo() {
 		const editConfirm = confirm("수정하기");
-		if (editConfirm) console.log("수정하기 요청!");
+		if (editConfirm) {
+			console.log("수정하기 요청!");
+			console.log(editValues);
+		}
 		return;
 	}
 

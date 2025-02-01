@@ -10,7 +10,7 @@ import HeaderBody from "../components/detailVote/headerBody";
 // import TransformDateString from "../util/transformDateString";
 import { IVoteData } from "../common/voteTypes";
 import { database } from "../routes/firebase";
-import MemberList from "./detailVote/memberList";
+import MemberList, { ListBox, ListItem } from "./detailVote/memberList";
 import { TransformDateTimeString } from "../util/transformDateString";
 
 // import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
@@ -163,11 +163,15 @@ export default function Detailvote() {
 			{memberView && (
 				<Modal title={"투표 멤버"} onClose={() => setMemberView(false)}>
 					<ModalListBox>
-						<MemberList
-							member={{ name: "투표자", itemName: "항목이름" }}
-							seq={-1}
-							ballot={voteInfo?.secretBallot}
-						/>
+						{/* 리스트 헤더 */}
+						<ListBox>
+							<ListItem flex={1}>No</ListItem>
+							<ListItem flex={2}>투표자</ListItem>
+							{voteInfo?.secretBallot && (
+								<ListItem flex={2}>투표 항목</ListItem>
+							)}
+						</ListBox>
+						{/* 투표 리스트 */}
 						{voteInfo?.completed?.map((member, idx) => {
 							return (
 								<MemberList

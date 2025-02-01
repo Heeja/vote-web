@@ -5,6 +5,7 @@ import {
 	getDocs,
 	query,
 	runTransaction,
+	Timestamp,
 	where,
 } from "firebase/firestore";
 import { auth, database } from "../routes/firebase";
@@ -85,14 +86,11 @@ export default function Vote() {
 	const { id } = useParams();
 	const [stateMessage, setStateMessage] = useState("로딩중..."); // 상태 메시지
 	const [voteData, setVoteData] = useState<IVoteData>(); // api data 담을 공간
+	const [voterName, setVoterName] = useState("");
 	// 투표 반영할 선택값들
 	const [selectItem, setSelectItem] = useState<string[]>([]);
 	// 투표자 정보
-	const [voteMember, setVoteMember] = useState<IVotedInfo>({
-		itemName: "",
-		name: "",
-		id: "",
-	});
+	const [voteMember, setVoteMember] = useState<IVotedInfo[]>([]);
 
 	const [modalBallot, setModalBallot] = useState(false); // 개표 모달 on|off
 
@@ -177,7 +175,7 @@ export default function Vote() {
 	function SubmitVote() {
 		try {
 			if (selectItem.length < 1) throw new Error("빈 값");
-			if (!voteMember.name) throw new Error("투표자 이름을 입력해주세요");
+			if (!voterName) throw new Error("투표자 이름을 입력해주세요");
 
 			if (voteData) {
 				runTransaction(database, async (transaction) => {
@@ -192,10 +190,7 @@ export default function Vote() {
 
 					// 이미 투표했는지 확인
 					currentData.completed?.forEach((list) => {
-						if (
-							(list.id && list.id === voteMember.id) ||
-							list.name === voteMember.name
-						) {
+						if (list.id && list.name === voterName) {
 							throw new Error("이미 투표하셨습니다.");
 						}
 					});
@@ -217,12 +212,10 @@ export default function Vote() {
 					});
 					// 투표자 기록
 					const completed = currentData.completed
-						? [...currentData.completed, voteMember]
-						: [voteMember];
+						? [...currentData.completed, ...voteMember]
+						: voteMember;
 
-					console.log("업데이트 아이템:", updateItems);
-					console.log("투표자:", completed);
-					// 검증이 완료된 후 업데이트
+					// 투표 반영(업데이트)
 					transaction.update(voteRef, { items: updateItems, completed });
 				})
 					.then(() => {
@@ -325,22 +318,36 @@ export default function Vote() {
 										style={{
 											width: "100%",
 											backgroundColor: `${
+												// 선택시 색상 변경
 												selectItem.includes(list.itemName)
 													? "#94C9FF"
 													: "whitesmoke"
 											}`,
 										}}
 										onClick={() => {
+											if (!voterName) {
+												return alert("이름을 먼저 입력해주세요.");
+											}
+											// 선택 토글
 											if (selectItem.includes(list.itemName)) {
 												setSelectItem((prev) =>
 													prev.filter((item) => item !== list.itemName)
 												);
+												setVoteMember((prev) =>
+													prev.filter(
+														(voted) => voted.itemName !== list.itemName
+													)
+												);
 											} else {
 												setSelectItem((prev) => [...prev, list.itemName]);
-												setVoteMember((prev) => ({
+												setVoteMember((prev) => [
 													...prev,
-													itemName: list.itemName,
-												}));
+													{
+														itemName: list.itemName,
+														name: voterName,
+														voteDate: Timestamp.fromDate(new Date()),
+													},
+												]);
 											}
 										}}>
 										{selectItem.includes(list.itemName)
@@ -375,10 +382,10 @@ export default function Vote() {
 								<input
 									type="text"
 									placeholder="이름"
-									value={voteMember.name}
+									value={voterName}
 									onChange={(e) => {
 										const { value } = e.target;
-										setVoteMember((prev) => ({ ...prev, name: value }));
+										setVoterName(value);
 									}}
 								/>
 							</InputBox>

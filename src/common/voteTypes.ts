@@ -6,10 +6,11 @@ export interface IVoteItems {
 	score: number;
 }
 export interface IVotedInfo {
-	[key: string]: number | string | undefined;
+	[key: string]: number | string | Timestamp | undefined;
 	name: string;
 	itemName: string;
 	id?: string | undefined;
+	voteDate: Timestamp;
 }
 export interface IVoteData {
 	anonyOn: boolean;

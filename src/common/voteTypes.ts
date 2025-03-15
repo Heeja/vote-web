@@ -5,16 +5,25 @@ export interface IVoteItems {
 	itemName: string;
 	score: number;
 }
+export interface IVotedInfo {
+	[key: string]: number | string | Timestamp | undefined;
+	name: string;
+	itemName: string;
+	id?: string | undefined;
+	voteDate: Timestamp;
+}
 export interface IVoteData {
 	anonyOn: boolean;
-	createTime: Timestamp;
 	createUser: string;
+	createTime: Timestamp;
+	closeTime: Timestamp;
+	state: boolean;
 	doubleOn: boolean;
 	secretBallot: boolean;
 	items: IVoteItems[];
 	limit: number;
 	location: string;
 	title: string;
-	completed: string[];
-	members: string[];
+	completed?: IVotedInfo[];
+	members?: string[];
 }

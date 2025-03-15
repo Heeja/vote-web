@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { auth } from "../routes/firebase";
 import { useEffect, useState } from "react";
-import { User } from "firebase/auth";
+import { signOut, User } from "firebase/auth";
 
 export default function ProtectedRoute({
 	children,
@@ -13,6 +13,7 @@ export default function ProtectedRoute({
 
 	useEffect(() => {
 		const unsubcribe = auth.onAuthStateChanged((currentUser) => {
+			// console.log(currentUser);
 			setIsLoading(false);
 			if (currentUser) {
 				setUser(currentUser);
@@ -29,6 +30,7 @@ export default function ProtectedRoute({
 	}
 
 	if (!user) {
+		signOut(auth).then((res) => console.log(res));
 		return <Navigate to="/login" />;
 	}
 

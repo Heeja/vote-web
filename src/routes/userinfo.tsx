@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import firebaseSessionStorage from "../util/firebaseSessionStorage";
+import { signOut } from "firebase/auth";
+import { auth } from "./firebase";
 
 const UserForm = styled.form`
 	display: flex;
@@ -32,6 +34,7 @@ export default function Userinfo() {
 		name: "",
 	});
 	const sessionStorage = firebaseSessionStorage();
+	console.log(sessionStorage);
 
 	// functions
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +63,8 @@ export default function Userinfo() {
 				pwcheck: "",
 				name: sessionStorage.displayName,
 			});
+		} else {
+			signOut(auth).then((res) => console.log(res));
 		}
 	}, []);
 	return (

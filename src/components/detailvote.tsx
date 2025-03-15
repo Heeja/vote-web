@@ -10,7 +10,8 @@ import HeaderBody from "../components/detailVote/headerBody";
 // import TransformDateString from "../util/transformDateString";
 import { IVoteData } from "../common/voteTypes";
 import { database } from "../routes/firebase";
-import MemberList from "./detailVote/memberList";
+import MemberList, { ListBox, ListItem } from "./detailVote/memberList";
+import { TransformDateTimeString } from "../util/transformDateString";
 
 // import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
 // import { ReactComponent as SortDown } from "../asset/svg/sortDown.svg";
@@ -31,12 +32,27 @@ const Title = styled.h1`
 	text-align: center;
 	border-bottom: 0.1rem solid #fff;
 	margin: 0.3rem 0;
+	font-weight: 700;
 `;
-
-const SubText = styled.p`
+const TimeBox = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+`;
+const SubText = styled.div`
 	align-self: flex-end;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-template-rows: 1fr;
+	grid-column-gap: 20px;
+	justify-items: flex-end;
 	font-size: 0.8rem;
-	margin-bottom: 0.3rem;
+	margin-bottom: 0.2rem;
+
+	:last-child {
+		font-size: 0.9rem;
+		font-weight: 500;
+	}
 `;
 
 const Body = styled.div`
@@ -101,7 +117,7 @@ export default function Detailvote() {
 			const data = await getDocs(fireQuery);
 
 			if (data.empty) {
-				console.log("data.empty", data.empty);
+				// console.log("data.empty", data.empty);
 				return { success: false, error: "조건에 맞는 문서가 없습니다." };
 			}
 
@@ -113,7 +129,6 @@ export default function Detailvote() {
 			return error;
 		}
 	};
-	console.log(voteInfo);
 
 	useEffect(() => {
 		const readVoteData = () => {
@@ -148,13 +163,21 @@ export default function Detailvote() {
 			{memberView && (
 				<Modal title={"투표 멤버"} onClose={() => setMemberView(false)}>
 					<ModalListBox>
-						{voteInfo?.members.map((member, idx) => {
-							const completed = voteInfo.completed.includes(member);
+						{/* 리스트 헤더 */}
+						<ListBox>
+							<ListItem flex={1}>No</ListItem>
+							<ListItem flex={2}>투표자</ListItem>
+							{voteInfo?.secretBallot && (
+								<ListItem flex={2}>투표 항목</ListItem>
+							)}
+						</ListBox>
+						{/* 투표 리스트 */}
+						{voteInfo?.completed?.map((member, idx) => {
 							return (
 								<MemberList
-									memberName={member}
+									member={member}
 									seq={idx}
-									completed={completed}
+									ballot={voteInfo.secretBallot}
 								/>
 							);
 						})}
@@ -164,9 +187,18 @@ export default function Detailvote() {
 			{dataState && voteInfo ? (
 				<>
 					<Title>{voteInfo.title}</Title>
-					<SubText>
-						생성일: {voteInfo.createTime.toDate().toLocaleDateString()}
-					</SubText>
+					<TimeBox>
+						<SubText>
+							<span>생성일: </span>
+							<span>
+								{TransformDateTimeString(voteInfo.createTime.toDate())}
+							</span>
+						</SubText>
+						<SubText>
+							종료일시:{" "}
+							<b>{TransformDateTimeString(voteInfo.closeTime.toDate())}</b>
+						</SubText>
+					</TimeBox>
 					<Body>
 						<HeaderBody headerList={headerList} onSortResult={onSortResult} />
 						<ResultBody data={voteInfo.items} />

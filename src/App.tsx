@@ -30,7 +30,7 @@ const GlobalStyles = createGlobalStyle`
   hr {
     width: 100%;
 	border-color: "#c1c1c1";
-	margin: 0.5rem 0;
+	margin: 0.2rem 0;
   }
   
   h1 {

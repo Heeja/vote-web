@@ -10,6 +10,7 @@ import { database } from "./firebase";
 import firebaseSessionStorage from "../util/firebaseSessionStorage";
 import { IVoteItems } from "../common/voteTypes";
 import { TransformDateTime } from "../util/transformDateString";
+import { tomorrow } from "../util/dates";
 
 const Wrapper = styled.div`
 	display: flex;
@@ -56,7 +57,7 @@ export default function Createvote() {
 	const [title, setTitle] = useState("");
 	const [items, setItems] = useState<IVoteItems[]>([]);
 	const [limit, setLimit] = useState(0);
-	const [closeTime, setCloseTime] = useState(new Date());
+	const [closeTime, setCloseTime] = useState(tomorrow);
 
 	const addItem = useRef<HTMLInputElement | null>(null);
 	const [addItemName, setAddItemName] = useState("");
@@ -141,10 +142,11 @@ export default function Createvote() {
 						<Button
 							id={item.itemName}
 							onClick={() => {
-								const sliceItems = items.slice(0, idx - 1);
-								if (idx > 0) sliceItems.push(...items.slice(idx));
+								const sliceItems = items.filter(
+									(list) => list.itemName !== item.itemName
+								);
 
-								setItems(sliceItems);
+								setItems([...sliceItems]);
 							}}>
 							𝘅
 						</Button>

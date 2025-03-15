@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
 	collection,
 	DocumentData,
@@ -14,6 +14,7 @@ import { database } from "../routes/firebase";
 
 import firebaseSessionStorage from "../util/firebaseSessionStorage";
 import TransformDateString from "../util/transformDateString";
+import Skeleton from "./Skeleton";
 
 // styld Componnets
 
@@ -52,9 +53,6 @@ const VoteInfoBox = styled.div<{ $flex: number }>`
 	div {
 		margin: 0.2rem 0;
 	}
-	div:last-child {
-		font-size: 0.7rem;
-	}
 `;
 
 const TableHeader = styled.div`
@@ -91,14 +89,32 @@ interface IVotelist {
 async function FirestroeVoteLists({
 	userUid,
 	collectionName,
+	rangeCreateDate,
+	rangeCloseDate,
 }: {
 	userUid: unknown;
 	collectionName: string;
+	rangeCreateDate?: { start: string; end: string };
+	rangeCloseDate?: { start: string; end: string };
 }) {
 	const data: IVotelist[] = [];
+	const options = [];
+	if (rangeCreateDate) {
+		options.push(
+			where("createTime", ">=", rangeCreateDate.start),
+			where("createTime", "<", rangeCreateDate.end)
+		);
+	}
+	if (rangeCloseDate) {
+		options.push(
+			where("closeTime", "<", rangeCloseDate.end),
+			where("closeTime", ">=", rangeCloseDate.start)
+		);
+	}
 	const listQuery = query(
 		collection(database, collectionName),
 		where("createUser", "==", userUid),
+		...options,
 		orderBy("createTime", "desc")
 	);
 	const response = await getDocs(listQuery);
@@ -112,6 +128,9 @@ export default function Votelist() {
 	const navigate = useNavigate();
 	const [voteList, setVoteList] = useState<IVotelist[]>([]);
 	const userUid = firebaseSessionStorage().uid;
+
+	// const [rangeCreateDate, setRangeCreateDate] = useState();
+	// const [rangeCloseDate, setRangeCloseDate] = useState();
 
 	// fucntions
 	useEffect(() => {
@@ -150,78 +169,81 @@ export default function Votelist() {
 	return (
 		<>
 			<h1>투표 관리</h1>
+			{/* todo: 생성일, 종료일 필터 생성 */}
 			<TableBox>
 				<TableHeader>
 					<TableItem $flex={1}>No.</TableItem>
 					<TableItem $flex={4}>Title</TableItem>
 					<TableItem $flex={2}>Anony</TableItem>
 					{/* <TableItem $flex={2}>Duple</TableItem>
-					<TableItem $flex={2}>limit</TableItem>
 					<TableItem $flex={3}>location</TableItem> */}
 					<TableItem $flex={3}>CreateDate</TableItem>
+					<TableItem $flex={3}>CloseDate</TableItem>
 					<TableItem $flex={2}>Share</TableItem>
 				</TableHeader>
 				<hr />
-				{voteList
-					?.sort((a, b) => {
-						const key1 = Object.keys(a)[0];
-						const key2 = Object.keys(b)[0];
-						return b[key2].createTime.seconds - a[key1].createTime.seconds;
-					})
-					.map((list, idx) => {
-						const key = Object.keys(list)[0];
-						const fireBaseTime = new Date(
-							list[key].createTime.seconds * 1000 +
-								list[key].createTime.nanoseconds / 1000000
-						);
-						const date = TransformDateString(fireBaseTime);
-						return (
-							<VoteBox key={idx}>
-								<VoteInfoBox
-									$flex={6}
-									onClick={() =>
-										// todo: 투표 수정 페이지 이동으로 수정!
-										// navigate(`/vote/${key}?anony=${list[key].anonyOn}`, {
-										// 	state: { anony: list[key].anonyOn },
-										// })
-										navigate(`${key}?anony=${list[key].anonyOn}`, {
-											state: { id: key, anony: list[key].anonyOn },
-										})
-									}
-									id={key}
-									data-idx={idx.toString()}>
-									<TableItem $flex={1}>{idx + 1}</TableItem>
-									<TableItem $flex={4}>{list[key].title}</TableItem>
-									<TableItem $flex={2}>
-										{list[key].anonyOn ? "Y" : "N"}
-									</TableItem>
-									{/* <TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
+				<Suspense fallback={<Skeleton variant="rounded" animation="wave" />}>
+					{voteList
+						?.sort((a, b) => {
+							const key1 = Object.keys(a)[0];
+							const key2 = Object.keys(b)[0];
+							return b[key2].createTime.seconds - a[key1].createTime.seconds;
+						})
+						.map((list, idx) => {
+							const key = Object.keys(list)[0];
+							const createDate = list[key].createTime.toDate();
+							const closeDate = list[key].closeTime.toDate();
+							const createDateString = TransformDateString(createDate);
+							const closeDateString = TransformDateString(closeDate);
+							return (
+								<VoteBox key={idx}>
+									<VoteInfoBox
+										$flex={6}
+										onClick={() =>
+											// todo: 투표 수정 페이지 이동으로 수정!
+											// navigate(`/vote/${key}?anony=${list[key].anonyOn}`, {
+											// 	state: { anony: list[key].anonyOn },
+											// })
+											navigate(`${key}?anony=${list[key].anonyOn}`, {
+												state: { id: key, anony: list[key].anonyOn },
+											})
+										}
+										id={key}
+										data-idx={idx.toString()}>
+										<TableItem $flex={1}>{idx + 1}</TableItem>
+										<TableItem $flex={4}>{list[key].title}</TableItem>
+										<TableItem $flex={2}>
+											{list[key].anonyOn ? "Y" : "N"}
+										</TableItem>
+										{/* <TableItem $flex={2}>{list[key].doubleOn ? "Y" : "N"}</TableItem>
 							<TableItem $flex={2}>{list[key].limit}</TableItem>
 							<TableItem $flex={3}>{list[key].location ? "Y" : "-"}</TableItem> */}
-									<TableItem $flex={3}>{date}</TableItem>
-								</VoteInfoBox>
+										<TableItem $flex={3}>{createDateString}</TableItem>
+										<TableItem $flex={3}>{closeDateString}</TableItem>
+									</VoteInfoBox>
 
-								<TableItem $flex={1}>
-									<ShareBtn
-										onClick={() => {
-											navigator.clipboard
-												.writeText(
-													`${window.location.origin}/vote/${key}?anony=${list[key].anonyOn}`
-												)
-												.then(() => alert("주소가 복사되었습니다."))
-												.catch((err) => alert(err));
-											// window.navigator.share({
-											// 	title: "투표 공유",
-											// 	text: list[key].title,
-											// 	url: `${window.location.origin}/vote/${key}?anony=${list[key].anonyOn}`,
-											// });
-										}}>
-										공유
-									</ShareBtn>
-								</TableItem>
-							</VoteBox>
-						);
-					})}
+									<TableItem $flex={1}>
+										<ShareBtn
+											onClick={() => {
+												navigator.clipboard
+													.writeText(
+														`${window.location.origin}/vote/${key}?anony=${list[key].anonyOn}`
+													)
+													.then(() => alert("주소가 복사되었습니다."))
+													.catch((err) => alert(err));
+												// window.navigator.share({
+												// 	title: "투표 공유",
+												// 	text: list[key].title,
+												// 	url: `${window.location.origin}/vote/${key}?anony=${list[key].anonyOn}`,
+												// });
+											}}>
+											공유
+										</ShareBtn>
+									</TableItem>
+								</VoteBox>
+							);
+						})}
+				</Suspense>
 			</TableBox>
 		</>
 	);

@@ -25,7 +25,7 @@ const TableBox = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 1rem 0.2rem;
-	width: 90%;
+	width: 100%;
 
 	hr {
 		margin: 0.2rem 0;
@@ -72,11 +72,12 @@ const TableItem = styled.div<{ $flex: number }>`
 	padding: "0.2rem";
 	overflow: "clip";
 	border: "0.1rem solid #fff";
+	font-size: small;
 `;
 const ShareBtn = styled.button`
 	font-size: x-small;
 	width: 100%;
-	height: 1.5rem;
+	height: 1.4rem;
 	border-radius: 1rem;
 `;
 
@@ -177,8 +178,8 @@ export default function Votelist() {
 					<TableItem $flex={2}>Anony</TableItem>
 					{/* <TableItem $flex={2}>Duple</TableItem>
 					<TableItem $flex={3}>location</TableItem> */}
-					<TableItem $flex={3}>CreateDate</TableItem>
-					<TableItem $flex={3}>CloseDate</TableItem>
+					<TableItem $flex={3}>Create</TableItem>
+					<TableItem $flex={3}>Close</TableItem>
 					<TableItem $flex={2}>Share</TableItem>
 				</TableHeader>
 				<hr />
@@ -193,12 +194,18 @@ export default function Votelist() {
 							const key = Object.keys(list)[0];
 							const createDate = list[key].createTime.toDate();
 							const closeDate = list[key].closeTime.toDate();
-							const createDateString = TransformDateString(createDate);
-							const closeDateString = TransformDateString(closeDate);
+							const createDateString = TransformDateString(
+								createDate,
+								"two-digit"
+							);
+							const closeDateString = TransformDateString(
+								closeDate,
+								"two-digit"
+							);
 							return (
 								<VoteBox key={idx}>
 									<VoteInfoBox
-										$flex={6}
+										$flex={8}
 										onClick={() =>
 											// todo: 투표 수정 페이지 이동으로 수정!
 											// navigate(`/vote/${key}?anony=${list[key].anonyOn}`, {

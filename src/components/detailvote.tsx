@@ -12,6 +12,7 @@ import { IVoteData } from "../common/voteTypes";
 import { database } from "../routes/firebase";
 import MemberList, { ListBox, ListItem } from "./detailVote/memberList";
 import { TransformDateTimeString } from "../util/transformDateString";
+import { end } from "../util/dates";
 
 // import { ReactComponent as SortUp } from "../asset/svg/sortUp.svg";
 // import { ReactComponent as SortDown } from "../asset/svg/sortDown.svg";
@@ -25,6 +26,23 @@ const Box = styled.div`
 	justify-content: center;
 	margin-top: 1rem;
 	padding: 0 1rem 1rem 1rem;
+	gap: 1rem;
+`;
+const FlexBox = styled.div`
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+`;
+const RightBox = styled.div`
+	width: 70%;
+	place-self: end;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-end;
+	padding: 0 0.5rem 0 0.5rem;
 	gap: 1rem;
 `;
 
@@ -54,6 +72,12 @@ const SubText = styled.div`
 		font-weight: 500;
 	}
 `;
+const SmallText = styled.span`
+	font-size: small;
+`;
+const SmallSubText = styled.span`
+	font-size: x-small;
+`;
 
 const Body = styled.div`
 	gap: 0;
@@ -76,7 +100,7 @@ const Button = styled.button<{ disabled?: boolean }>`
 	color: ${(props) => (props.disabled ? "white" : "black")};
 	cursor: pointer;
 	&:hover {
-		background-color: #f8ffa4;
+		background-color: ${(props) => !props.disabled && "#f8ffa4"};
 	}
 `;
 
@@ -172,39 +196,75 @@ export default function Detailvote() {
 							)}
 						</ListBox>
 						{/* 투표 리스트 */}
-						{voteInfo?.completed?.map((member, idx) => {
-							return (
-								<MemberList
-									member={member}
-									seq={idx}
-									ballot={voteInfo.secretBallot}
-								/>
-							);
-						})}
+						{voteInfo?.completed && voteInfo.completed.length > 1 ? (
+							voteInfo?.completed?.map((member, idx) => {
+								return (
+									<MemberList
+										member={member}
+										seq={idx}
+										ballot={voteInfo.secretBallot}
+									/>
+								);
+							})
+						) : (
+							<div>투표자가 없습니다.</div>
+						)}
 					</ModalListBox>
 				</Modal>
 			)}
 			{dataState && voteInfo ? (
 				<>
 					<Title>{voteInfo.title}</Title>
-					<TimeBox>
-						<SubText>
-							<span>생성일: </span>
-							<span>
+					<RightBox>
+						<FlexBox>
+							<SmallText>생성일:</SmallText>
+							<SmallText>
 								{TransformDateTimeString(voteInfo.createTime.toDate())}
-							</span>
-						</SubText>
-						<SubText>
-							종료일시:{" "}
-							<b>{TransformDateTimeString(voteInfo.closeTime.toDate())}</b>
-						</SubText>
-					</TimeBox>
+							</SmallText>
+						</FlexBox>
+						<FlexBox>
+							<SmallText>종료일시:</SmallText>
+							<SmallText>
+								{end.toString() === voteInfo?.closeTime.toDate().toString()
+									? "-"
+									: TransformDateTimeString(voteInfo.closeTime.toDate())}
+							</SmallText>
+						</FlexBox>
+					</RightBox>
 					<Body>
 						<HeaderBody headerList={headerList} onSortResult={onSortResult} />
 						<ResultBody data={voteInfo.items} />
 					</Body>
+
+					<RightBox>
+						<FlexBox>
+							<SmallText>중복 선택:</SmallText>
+							<SmallText>{voteInfo.doubleOn ? "Y" : "N"}</SmallText>
+						</FlexBox>
+						{/* <FlexBox>
+						<SmallText>위치 지정 <SmallSubText>(반경500m)</SmallSubText>:</SmallText>
+						<SmallText>{voteInfo.location}</SmallText>
+						</FlexBox> */}
+						<FlexBox>
+							<SmallText>
+								공개 투표 <SmallSubText>(Default: 비공개)</SmallSubText>:
+							</SmallText>
+							<SmallText>{voteInfo.anonyOn ? "Y" : "N"}</SmallText>
+						</FlexBox>
+						<FlexBox>
+							<SmallText>개표 공개 여부:</SmallText>
+							<SmallText>{voteInfo.secretBallot ? "Y" : "N"}</SmallText>
+						</FlexBox>
+						<FlexBox>
+							<SmallText>
+								제한인원 <SmallSubText>(최대 200명)</SmallSubText>:
+							</SmallText>
+							<SmallText>{voteInfo.limit}명</SmallText>
+						</FlexBox>
+					</RightBox>
+					<hr />
 					<Button onClick={() => setMemberView((prev) => !prev)}>
-						명단 보기
+						투표 현황
 					</Button>
 					<ButtonBox>
 						<Button onClick={onGoBack}>뒤로가기</Button>

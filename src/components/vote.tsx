@@ -258,7 +258,9 @@ export default function Vote() {
 		<>
 			{modalBallot && (
 				<Modal title="투표 현황" onClose={() => setModalBallot(false)}>
-					<div>^____^</div>
+					<div>투표</div>
+					<div>나는 칠드런...</div>
+					<div>나도 나타나게 해줘</div>
 				</Modal>
 			)}
 			<CenterFlex
@@ -328,6 +330,7 @@ export default function Vote() {
 											if (!voterName) {
 												return alert("이름을 먼저 입력해주세요.");
 											}
+											// voteData.doubleOn
 											// 선택 토글
 											if (selectItem.includes(list.itemName)) {
 												setSelectItem((prev) =>
@@ -339,7 +342,11 @@ export default function Vote() {
 													)
 												);
 											} else {
-												setSelectItem((prev) => [...prev, list.itemName]);
+												setSelectItem((prev) => {
+													return voteData.doubleOn // 중복 가능 여부
+														? [...prev, list.itemName]
+														: [list.itemName];
+												});
 												setVoteMember((prev) => [
 													...prev,
 													{

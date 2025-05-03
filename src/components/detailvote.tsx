@@ -52,26 +52,7 @@ const Title = styled.h1`
 	margin: 0.3rem 0;
 	font-weight: 700;
 `;
-const TimeBox = styled.div`
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-`;
-const SubText = styled.div`
-	align-self: flex-end;
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	grid-template-rows: 1fr;
-	grid-column-gap: 20px;
-	justify-items: flex-end;
-	font-size: 0.8rem;
-	margin-bottom: 0.2rem;
 
-	:last-child {
-		font-size: 0.9rem;
-		font-weight: 500;
-	}
-`;
 const SmallText = styled.span`
 	font-size: small;
 `;

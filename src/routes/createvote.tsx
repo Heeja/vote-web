@@ -87,7 +87,6 @@ export default function Createvote() {
 			closeTime: Timestamp.fromDate(closeTime),
 			state: true,
 			completed: [],
-			members: [],
 		};
 
 		// firestore save

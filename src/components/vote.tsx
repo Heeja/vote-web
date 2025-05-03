@@ -19,6 +19,7 @@ import {
 } from "../common/basicStyled";
 import { IVoteData, IVotedInfo } from "../common/voteTypes";
 import Modal from "./Modal";
+import MemberList from "./detailVote/memberList";
 
 // styled components
 // const Item = styled.div`
@@ -86,7 +87,10 @@ export default function Vote() {
 	const { id } = useParams();
 	const [stateMessage, setStateMessage] = useState("로딩중..."); // 상태 메시지
 	const [voteData, setVoteData] = useState<IVoteData>(); // api data 담을 공간
-	const [voterName, setVoterName] = useState("");
+	const [voterName, setVoterName] = useState({
+		id: "",
+		name: "",
+	}); // 투표자 이름 | 로그인 유저는 자동 기입(입력기능 없음), 공개투표는 따로 기입
 	// 투표 반영할 선택값들
 	const [selectItem, setSelectItem] = useState<string[]>([]);
 	// 투표자 정보
@@ -106,11 +110,6 @@ export default function Vote() {
 				await new Promise<void>((resolve, reject) => {
 					const unsubscribe = auth.onAuthStateChanged((user) => {
 						if (user) {
-							setVoteMember((prev) => ({
-								...prev,
-								id: user.uid,
-								name: user.displayName as string,
-							}));
 							resolve();
 						} else {
 							reject(new Error("로그인이 필요합니다."));
@@ -137,11 +136,14 @@ export default function Vote() {
 
 			data.forEach((doc) => {
 				// 공개 투표일 경우 데이터 필터
-				const rawData = doc.data();
+				const rawData = doc.data() as IVoteData;
+				const memberCount = rawData.completed
+					? new Set(rawData.completed.map((list) => list.id)).size
+					: new Set().size;
 
 				if (!rawData.state || rawData.closeTime.toDate() < new Date()) {
 					setStateMessage("종료된 투표입니다.");
-				} else if (rawData.completed.length >= rawData.limit) {
+				} else if (memberCount >= rawData.limit) {
 					setStateMessage("투표인원이 가득찼습니다.");
 				} else {
 					if (anony) {
@@ -190,7 +192,7 @@ export default function Vote() {
 
 					// 이미 투표했는지 확인
 					currentData.completed?.forEach((list) => {
-						if (list.id && list.name === voterName) {
+						if (list.id === voterName.id && list.name === voterName.name) {
 							throw new Error("이미 투표하셨습니다.");
 						}
 					});
@@ -233,16 +235,11 @@ export default function Vote() {
 		}
 	}
 
-	/**
-	 *
-	 */
-	const resetVote = () => {
-		setSelectItem([]);
-	};
+	// 투표 정보 감지
 	useEffect(() => {
 		getVoteInfo();
 	}, []);
-
+	//비공개 투표 로그인 여부 체크
 	useEffect(() => {
 		const unsubscribe = auth.onAuthStateChanged((user) => {
 			if (!user && !anony) {
@@ -253,12 +250,32 @@ export default function Vote() {
 
 		return () => unsubscribe(); // cleanup
 	}, []);
+	// 로그인 한 유저 정보 감지 및 반영
+	useEffect(() => {
+		const setUserInfo = () => {
+			if (auth.currentUser) {
+				setVoterName({
+					id: auth.currentUser.uid,
+					name: auth.currentUser.displayName as string,
+				});
+			}
+		};
+
+		return () => setUserInfo();
+	}, [auth.currentUser]);
 
 	return (
 		<>
 			{modalBallot && (
 				<Modal title="투표 현황" onClose={() => setModalBallot(false)}>
-					<div>^____^</div>
+					{voteData?.completed &&
+						voteData.completed.map((list, idx) => (
+							<MemberList
+								member={list}
+								seq={idx}
+								ballot={voteData.secretBallot}
+							/>
+						))}
 				</Modal>
 			)}
 			<CenterFlex
@@ -328,6 +345,7 @@ export default function Vote() {
 											if (!voterName) {
 												return alert("이름을 먼저 입력해주세요.");
 											}
+											// voteData.doubleOn
 											// 선택 토글
 											if (selectItem.includes(list.itemName)) {
 												setSelectItem((prev) =>
@@ -339,12 +357,17 @@ export default function Vote() {
 													)
 												);
 											} else {
-												setSelectItem((prev) => [...prev, list.itemName]);
+												setSelectItem((prev) => {
+													return voteData.doubleOn // 중복 가능 여부
+														? [...prev, list.itemName]
+														: [list.itemName];
+												});
 												setVoteMember((prev) => [
 													...prev,
 													{
 														itemName: list.itemName,
-														name: voterName,
+														id: voterName.id,
+														name: voterName.name,
 														voteDate: Timestamp.fromDate(new Date()),
 													},
 												]);
@@ -382,10 +405,10 @@ export default function Vote() {
 								<input
 									type="text"
 									placeholder="이름"
-									value={voterName}
+									value={voterName.name}
 									onChange={(e) => {
 										const { value } = e.target;
-										setVoterName(value);
+										setVoterName((prev) => ({ ...prev, name: value }));
 									}}
 								/>
 							</InputBox>
@@ -402,7 +425,7 @@ export default function Vote() {
 					<ButtonBox>
 						<BasicButton
 							style={{ flex: 1, backgroundColor: "tomato", color: "white" }}
-							onClick={resetVote}>
+							onClick={() => setSelectItem([])}>
 							다시
 						</BasicButton>
 						<BasicButton

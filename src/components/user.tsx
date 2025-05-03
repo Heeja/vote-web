@@ -1,6 +1,6 @@
 import { signOut } from "firebase/auth";
 import { useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { auth } from "../routes/firebase";
 
@@ -15,6 +15,11 @@ const Wrapper = styled.div`
 		position: absolute;
 		right: 5pt;
 		top: 5pt;
+	}
+`;
+const TopHead = styled.div`
+	:hover {
+		cursor: pointer;
 	}
 `;
 
@@ -37,6 +42,7 @@ const UserPageBox = styled.div`
 export default function User() {
 	const [isLoading] = useState(false);
 	const navigate = useNavigate();
+	const { pathname } = useLocation();
 
 	const Logout = () => {
 		signOut(auth).then((res) => console.log(res));
@@ -45,7 +51,9 @@ export default function User() {
 
 	return (
 		<Wrapper>
-			<h1>User Page.</h1>
+			<TopHead onClick={() => navigate("/user")}>
+				<h1>User Page</h1>
+			</TopHead>
 
 			<button type="button" onClick={Logout}>
 				Logout
@@ -55,7 +63,7 @@ export default function User() {
 			<UserPageBox>
 				<Link to={"createvote"}>Create vote</Link>
 				<Link to={"managevote"}>Manage vote</Link>
-				<Link to={"userInfo"}>User Info.</Link>
+				<Link to={"userInfo"}>User Info</Link>
 			</UserPageBox>
 			<hr />
 			{isLoading ? (
@@ -63,7 +71,15 @@ export default function User() {
 					<h1>Loading....</h1>
 				</>
 			) : (
-				<Outlet />
+				<>
+					<Outlet />
+				</>
+			)}
+			{/* Todo: 이용 안내 Component로 변경! */}
+			{pathname.length < 6 && (
+				<div>
+					<h3>투표 이용 안내</h3>
+				</div>
 			)}
 		</Wrapper>
 	);

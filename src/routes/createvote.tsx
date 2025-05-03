@@ -10,7 +10,7 @@ import { database } from "./firebase";
 import firebaseSessionStorage from "../util/firebaseSessionStorage";
 import { IVoteItems } from "../common/voteTypes";
 import { TransformDateTime } from "../util/transformDateString";
-import { tomorrow } from "../util/dates";
+import { end } from "../util/dates";
 
 const Wrapper = styled.div`
 	display: flex;
@@ -43,6 +43,14 @@ const Button = styled.button`
 `;
 
 const Label = styled.label``;
+const UnderText = styled.span`
+	font-size: small;
+`;
+
+const FlexBox = styled.div`
+	display: flex;
+	gap: 1rem;
+`;
 
 export default function Createvote() {
 	const navigate = useNavigate();
@@ -57,7 +65,7 @@ export default function Createvote() {
 	const [title, setTitle] = useState("");
 	const [items, setItems] = useState<IVoteItems[]>([]);
 	const [limit, setLimit] = useState(0);
-	const [closeTime, setCloseTime] = useState(tomorrow);
+	const [closeTime, setCloseTime] = useState(end);
 
 	const addItem = useRef<HTMLInputElement | null>(null);
 	const [addItemName, setAddItemName] = useState("");
@@ -79,7 +87,6 @@ export default function Createvote() {
 			closeTime: Timestamp.fromDate(closeTime),
 			state: true,
 			completed: [],
-			members: [],
 		};
 
 		// firestore save
@@ -134,6 +141,10 @@ export default function Createvote() {
 					}}
 				/>
 			</InputBox>
+			<FlexBox>
+				<h4>최대 투표항목 개수:</h4>
+				<h3>5개</h3>
+			</FlexBox>
 			{items.map((item, idx) => {
 				return (
 					<InputBox key={idx}>
@@ -193,7 +204,9 @@ export default function Createvote() {
 				/>
 			</InputBox>
 			<InputBox>
-				<Label htmlFor="location">위치 지정(반경500m)</Label>
+				<Label htmlFor="location">
+					위치 지정 <UnderText>(반경500m)</UnderText>
+				</Label>
 				{locationOn ? (
 					<button disabled onClick={() => setMapOn(true)}>
 						위치정보 지정하기
@@ -206,7 +219,9 @@ export default function Createvote() {
 				/>
 			</InputBox>
 			<InputBox>
-				<Label htmlFor="anonymously">익명 투표</Label>
+				<Label htmlFor="anonymously">
+					공개 투표 <UnderText>(Default: 비공개)</UnderText>
+				</Label>
 				<Input
 					id="anonymously"
 					type="checkbox"
@@ -221,7 +236,7 @@ export default function Createvote() {
 				/>
 			</InputBox>
 			<InputBox>
-				<Label htmlFor="secretBallot">비공개 개표</Label>
+				<Label htmlFor="secretBallot">개표 공개 여부</Label>
 				<Input
 					id="secretBallot"
 					type="checkbox"
@@ -231,7 +246,9 @@ export default function Createvote() {
 				/>
 			</InputBox>
 			<InputBox>
-				<Label htmlFor="limit">투표 제한인원 (최대 200명)</Label>
+				<Label htmlFor="limit">
+					투표 제한인원 <UnderText>(최대 200명)</UnderText>
+				</Label>
 				<Input
 					id="limit"
 					type="number"

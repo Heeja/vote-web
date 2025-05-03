@@ -1,4 +1,7 @@
-export default function TransformDateString(dateValue: Date) {
+export default function TransformDateString(
+	dateValue: Date,
+	type?: "fullYear" | "two-digit"
+) {
 	const year = dateValue.getFullYear().toString();
 	const month = (dateValue.getMonth() + 1).toString();
 	const date = dateValue.getDate().toString();
@@ -9,7 +12,9 @@ export default function TransformDateString(dateValue: Date) {
 	const twodigitMonth = month.length < 2 ? "0" + month : month;
 	const twoDigitDate = date.length < 2 ? "0" + date : date;
 
-	const result = `${year}-${twodigitMonth}-${twoDigitDate}`;
+	const result = `${
+		type === "two-digit" ? year.slice(2) : year
+	}-${twodigitMonth}-${twoDigitDate}`;
 	return result;
 }
 function TimeString(dateValue: Date) {

@@ -1,3 +1,4 @@
+export const end = new Date("9999-12-31T23:59:59.999Z");
 export const today = new Date();
 // 날짜 계산 함수
 export const addDays = (days: number) => {

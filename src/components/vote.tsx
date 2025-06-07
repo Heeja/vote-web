@@ -159,6 +159,7 @@ export default function Vote() {
 							doubleOn: rawData.doubleOn,
 							limit: rawData.limit,
 							location: rawData.location,
+							completed: rawData.completed,
 						};
 						setVoteData(filteredData);
 					} else {

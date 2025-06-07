@@ -93,12 +93,12 @@ const ModalListBox = styled.div`
 
 export default function Detailvote() {
 	const navigate = useNavigate();
-	const { state } = useLocation();
-	const [dataState, setDataState] = useState(false);
-	const [voteInfo, setVoteInfo] = useState<IVoteData>();
-	const [enableEdit, setEnableEdit] = useState(false);
-	const [editModal, setEditModal] = useState(false);
-	const [memberView, setMemberView] = useState(false);
+	const { state } = useLocation(); // 투표 id, anony
+	const [dataState, setDataState] = useState(false); // 투표 정보 수신여부
+	const [voteInfo, setVoteInfo] = useState<IVoteData>(); // 투표 정보
+	const [enableEdit, setEnableEdit] = useState(false); // 투표 수정 가능여부
+	const [editModal, setEditModal] = useState(false); // 투표 수정 Modal ON|OFF
+	const [memberView, setMemberView] = useState(false); // 투표 현황 Modal ON|OFF
 
 	const headerList = ["순서", "항목", "투표수", "점유율"];
 
@@ -135,6 +135,7 @@ export default function Detailvote() {
 		}
 	};
 
+	// 투표 데이터 수신
 	useEffect(() => {
 		const readVoteData = () => {
 			getVoteInfo()
@@ -151,6 +152,8 @@ export default function Detailvote() {
 
 	useEffect(() => {
 		if (voteInfo) {
+			if (voteInfo.closeTime.toDate() <= new Date()) setEnableEdit(true);
+			if (voteInfo.completed.length > 0) setEnableEdit(true);
 			voteInfo.items.forEach((item) => item.score > 0 && setEnableEdit(true));
 		}
 	}, [voteInfo]);
@@ -160,8 +163,12 @@ export default function Detailvote() {
 			{voteInfo && editModal && (
 				<Modal title={"투표 수정"} onClose={() => setEditModal(false)}>
 					<VoteEditModal
+						state={state}
 						voteData={{ title: voteInfo.title, items: voteInfo.items }}
-						onClose={() => setEditModal(false)}
+						syncData={() => getVoteInfo()}
+						onClose={() => {
+							setEditModal(false);
+						}}
 					/>
 				</Modal>
 			)}

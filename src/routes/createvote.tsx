@@ -1,16 +1,16 @@
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { addDoc, collection, Timestamp } from "firebase/firestore";
 
 import Googlemaps from "../components/googlemaps";
 import Modal from "../components/Modal";
 
-import { database } from "./firebase";
-import firebaseSessionStorage from "../util/firebaseSessionStorage";
 import { IVoteItems } from "../common/voteTypes";
-import { TransformDateTime } from "../util/transformDateString";
 import { end } from "../util/dates";
+import firebaseSessionStorage from "../util/firebaseSessionStorage";
+import { TransformDateTime } from "../util/transformDateString";
+import { database } from "./firebase";
 
 const Wrapper = styled.div`
 	display: flex;
@@ -54,6 +54,7 @@ const FlexBox = styled.div`
 
 export default function Createvote() {
 	const navigate = useNavigate();
+	const now = new Date();
 
 	const [doubleOn, setDoubleOn] = useState(false);
 	const [locationOn, setLocationOn] = useState(false);
@@ -74,6 +75,10 @@ export default function Createvote() {
 	const userData = firebaseSessionStorage();
 
 	const onCreateVote = async () => {
+		if (closeTime <= now) {
+			alert("현재보다 이전으로 종료일을 성절 할 수는 없습니다.");
+			return;
+		}
 		const submitData = {
 			title: title,
 			items: items,
